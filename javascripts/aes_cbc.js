@@ -228,7 +228,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     ciphertext = ciphertext.encodeBase64();  // encode in base64
     //remove all parameters from enviroment for more security
     //comment the following line for development to recieve more information
-    //env.clearParams();
+    env.clearParams();
     env.setParams({output:ciphertext});
 
     return ciphertext;
@@ -296,7 +296,7 @@ if(typeof(pidCrypt) != 'undefined' &&
       plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
     //remove all parameters from enviroment for more security
     //comment the following line for development to recieve more information
-    //env.clearParams();
+    env.clearParams();
     if(env.isDebug()) env.appendDebug('Removed Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
     env.setParams({output:plaintext});
 

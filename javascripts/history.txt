@@ -1,0 +1,17 @@
+Release 002, not released
+New functions
+Changes
+ - SHA hashing routines without automatic UTF-8 encoding
+
+Release 001, 03.03.2009
+Initial release supporting the following functions:
+ - Base64
+ - UTF-8
+ - MD5
+ - SHA-1
+ - SHA-256
+ - AES CBC Mode
+ - AES CTR Mode
+ - RSA Encryption
+ - RSA encrypted private key files
+ - ASN.1

@@ -152,7 +152,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     ciphertext = ciphertext.encodeBase64();  // encode in base64
     //remove all parameters from enviroment for more security
     //comment the following line for development to recieve more information
-    //env.clearParams();
+    env.clearParams();
     env.setParams({output:ciphertext});
 
     return ciphertext;
@@ -215,7 +215,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
     //remove all parameters from enviroment for more security
     //comment the following line for development to recieve more information
-    //env.clearParams();
+    env.clearParams();
     env.setParams({output:plaintext});
 
     return plaintext;

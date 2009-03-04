@@ -100,8 +100,7 @@ if(typeof(pidCrypt) != 'undefined') {
       return str;
     }
 
-    //s = Utf8Encode(s);
-    s = s.encodeUTF8();
+    //s = s.encodeUTF8();
     return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
 
   }
