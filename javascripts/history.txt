@@ -1,4 +1,4 @@
-Release 002, not released
+Release 002, in progress
 New functions
 Changes
  - SHA hashing routines without automatic UTF-8 encoding
