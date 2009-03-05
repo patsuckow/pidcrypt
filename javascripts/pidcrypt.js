@@ -74,7 +74,17 @@ function pidCrypt(){
       bytes[i] = field[Math.floor(Math.random()*field.length)];
     return bytes
   }
-  this.debug = false;
+
+  this.setDefaults = function(){
+     this.params.nBits = 256;
+  //salt should always be a Hex String e.g. AD0E76FF6535AD...
+     this.params.salt = byteArray2String(getRandomBytes(8)).convertToHex();
+     this.params.blockSize = 16;
+     this.params.UTF8 = true;
+     this.params.A0_PAD = true;
+  }
+
+  this.debug = true;
   this.params = {};
   //setting default values for params
   this.params.input = '';
@@ -83,12 +93,7 @@ function pidCrypt(){
   this.params.key = '';
   //iv should always be a Hex String e.g. AD0E76FF6535AD...
   this.params.iv = '';
-  //salt should always be a Hex String e.g. AD0E76FF6535AD...
-  this.params.salt = byteArray2String(getRandomBytes(8)).convertToHex();
-  this.params.nBits = 256;
-  this.params.blockSize = 16;
-  this.params.UTF8 = true;
-  this.params.A0_PAD = true;
+  this.setDefaults();
   this.errors = '';
   this.warnings = '';
   this.infos = '';
@@ -113,7 +118,7 @@ function pidCrypt(){
     return this.params;
   }
   this.clearParams = function(){
-      this.params= {};  
+      this.params= {};
   }
   this.getNBits = function(){
     return this.params.nBits;
@@ -128,14 +133,14 @@ function pidCrypt(){
     this.errors += str;
   }
   this.getErrors = function(){
-    return this.errors;   
+    return this.errors;
   }
   this.appendInfo = function(str){
     this.infos += str;
   }
   this.getInfos = function()
   {
-    return this.infos;    
+    return this.infos;
   }
   this.setDebug = function(flag){
     this.debug = flag;
