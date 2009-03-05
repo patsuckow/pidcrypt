@@ -47,10 +47,11 @@ if(typeof(pidCrypt) != 'undefined' &&
   pidCrypt.AES.CBC.prototype.initEncrypt = function(input, password, options) {
     if(!options) options = {};
     var env = this.env;
+    env.setDefaults();
     var pObj = this.env.getParams(); //loading defaults
     for(var o in options)
       pObj[o] = options[o];
-    var k_iv = this.createKeyAndIv({password:password, salt: pObj.salt.convertFromHex(), bits: pObj.nBits});
+    var k_iv = this.createKeyAndIv({password:password, salt: pObj.salt, bits: pObj.nBits});
     pObj.key = k_iv.key;
     pObj.iv = k_iv.iv;
     pObj.input = input;
@@ -61,7 +62,7 @@ if(typeof(pidCrypt) != 'undefined' &&
  * Initialize CBC for decryption from encrypted text (compatible with openssl).
  * see thread http://thedotnet.com/nntp/300307/showpost.aspx
  * @param  crypted: base64 encoded aes encrypted text
- * @param  passwd: String 
+ * @param  passwd: String
  * @param  options {
  *           nBits: aes bit size (128, 192 or 256),
  *           UTF8: boolean, set to false when decrypting certificates,
@@ -73,6 +74,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     var env = this.env;
     if(!passwd)
       env.appendError('pidCrypt.AES.CBC.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
+    env.setDefaults();
     var pObj = this.env.getParams();  //loading defaults
     for(var o in options)
       pObj[o] = options[o];
@@ -87,7 +89,7 @@ if(typeof(pidCrypt) != 'undefined' &&
       env.appendDebug('Password: ' + passwd +'\n');
     }
     pObj.salt = salt.convertToHex();
-    var k_iv = this.createKeyAndIv({password:passwd, salt: salt, bits: pObj.nBits});
+    var k_iv = this.createKeyAndIv({password:passwd, salt: pObj.salt, bits: pObj.nBits});
     pObj.key = k_iv.key;
     pObj.iv = k_iv.iv;
     cipherText = cipherText.substr(16)
@@ -108,6 +110,7 @@ if(typeof(pidCrypt) != 'undefined' &&
   pidCrypt.AES.CBC.prototype.initByValues = function(input, key, iv, options){
     if(!options) options = {};
     var env = this.env;
+    env.setDefaults();
     var pObj = this.env.getParams();//loading defaults
     for(var o in options)
       pObj[o] = options[o];
@@ -141,10 +144,10 @@ if(typeof(pidCrypt) != 'undefined' &&
     if(!pObj) pObj = {};
     if(!pObj.salt) {
       pObj.salt = env.getRandomBytes(8);
-      pObj.salt = byteArray2String(pObj.salt);
+      pObj.salt = byteArray2String(pObj.salt).convertToHex();
+      env.setParams({salt: pObj.salt});
     }
-    env.setParams({salt: pObj.salt.convertToHex()});
-    var data00 = pObj.password + pObj.salt;
+    var data00 = pObj.password + pObj.salt.convertFromHex();
     var hashtarget = '';
     var result = '';
     var keymaterial = [];
@@ -226,9 +229,8 @@ if(typeof(pidCrypt) != 'undefined' &&
     salt = 'Salted__' + p.salt.convertFromHex();
     ciphertext = salt  + ciphertext;
     ciphertext = ciphertext.encodeBase64();  // encode in base64
-    //remove all parameters from enviroment for more security
-    //comment the following line for development to recieve more information
-    env.clearParams();
+    //remove all parameters from enviroment for more security is debug off
+    if(!env.isDebug()) env.clearParams();
     env.setParams({output:ciphertext});
 
     return ciphertext;
@@ -281,10 +283,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     var endByte = plaintext.charCodeAt(plaintext.length-1);
     //remove oppenssl A0 padding eg. 0A05050505
     if(p.A0_PAD){
-//    if(endByte != 10) #TODO: check padding
         plaintext = plaintext.substr(0,plaintext.length-(endByte+1));
-//    if(endByte == 10)
-//      plaintext = plaintext.substr(0,plaintext.length-1);
     }
     else {
       var div = plaintext.length - (plaintext.length-endByte);
@@ -294,9 +293,8 @@ if(typeof(pidCrypt) != 'undefined' &&
     }
     if(p.UTF8)
       plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
-    //remove all parameters from enviroment for more security
-    //comment the following line for development to recieve more information
-    env.clearParams();
+    //remove all parameters from enviroment for more security is debug off
+    if(!env.isDebug()) env.clearParams();
     if(env.isDebug()) env.appendDebug('Removed Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
     env.setParams({output:plaintext});
 
