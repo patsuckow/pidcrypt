@@ -1,6 +1,22 @@
 Release 002, in progress
-New functions
-Changes
+**************   Bug fixes   **************
+
+************** New functions **************
+pidCrypt
+ - setDefaults(), set all deafult values
+
+AES-CBC
+ - init(password, options), init without input
+
+**************   Changes     **************
+AES-CBC
+ - encrypt(input) and decrypt(input)  understand now the param input.
+   you can now call init once anf encrypt and decrypt with same
+   parameters.
+ - new param noclear. if set with options the params are not cleared
+   from memory.
+
+SHA-1, SHA-256
  - SHA hashing routines without automatic UTF-8 encoding
 
 Release 001, 03.03.2009
