@@ -81,6 +81,7 @@ if(typeof(pidCrypt) != 'undefined' &&
  *         }
 */
   pidCrypt.AES.CBC.prototype.initDecrypt = function(crypted, password, options){
+    if(!options) options = {};
     var env = this.env;
     if(!password)
       env.appendError('pidCrypt.AES.CBC.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
@@ -222,7 +223,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     ciphertext = salt  + ciphertext;
     ciphertext = ciphertext.encodeBase64();  // encode in base64
     //remove all parameters from enviroment for more security is debug off
-    if(!env.isDebug() && !env.noclear) env.clearParams();
+    if(!env.isDebug() && env.clear) env.clearParams();
     env.setParams({output:ciphertext});
 
     return ciphertext;
@@ -287,7 +288,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     if(p.UTF8)
       plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
     //remove all parameters from enviroment for more security is debug off
-    if(!env.isDebug() && !env.noclear) env.clearParams();
+    if(!env.isDebug() && env.clear) env.clearParams();
     if(env.isDebug()) env.appendDebug('Removed Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
     env.setParams({output:plaintext});
 
