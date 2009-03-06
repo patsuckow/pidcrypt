@@ -3,17 +3,23 @@ Release 002, in progress
 
 ************** New functions **************
 pidCrypt
- - setDefaults(), set all deafult values
+ - setDefaults(), set all default values
 
 AES-CBC
  - init(password, options), init without input
+ - isError() returns true if error messages are set by an operation
 
 **************   Changes     **************
+pidCrypt
+ - getAllMessages(options), has a new options parameter. with options.verbose
+   you can set the verbose level of the messages with any combination of 4 bits.
+   1 = Error,2 = Warnings, 4 = Info, 8 = Debug. e.g. 10 (1010) gives you
+   warnings and debugs. options.clr_mes = true clears all previous messages.
+
 AES-CBC
- - encrypt(input) and decrypt(input)  understand now the param input.
-   you can now call init once anf encrypt and decrypt with same
-   parameters.
- - new param noclear. if set with options the params are not cleared
+ - encrypt(input) and decrypt(input) now understand the param input.
+   you can now call init() once and en-/decrypt with same parameters.
+ - new param clear. if set to false with options the params are not cleared
    from memory.
 
 SHA-1, SHA-256
