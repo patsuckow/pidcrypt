@@ -93,6 +93,7 @@ function pidCrypt(){
   this.params.key = '';
   //iv should always be a Hex String e.g. AD0E76FF6535AD...
   this.params.iv = '';
+  this.params.noclear = false;
   this.setDefaults();
   this.errors = '';
   this.warnings = '';
@@ -135,6 +136,11 @@ function pidCrypt(){
   this.getErrors = function(){
     return this.errors;
   }
+  this.isError = function(){
+    if(this.errors.length>0)
+      return true;
+    return false
+  }
   this.appendInfo = function(str){
     this.infos += str;
   }
@@ -152,15 +158,23 @@ function pidCrypt(){
   this.isDebug = function(){
     return this.debug;
   }
-  this.getAllMessages = function(lnbrk){
-    if(!lnbrk) lnbrk = '\n';
+  this.getAllMessages = function(options){
+    var defaults = {lf:'\n',
+                    clr_mes: false,
+                    verbose: 15//verbose level bits = 1111
+        };
+    if(!options) options = defaults;
+    for(var d in defaults)
+      if(typeof(options[d]) == 'undefined') options[d] = defaults[d];
     var mes = '';
     for(var p in this.params)
-      mes += p + ': ' + this.params[p] + lnbrk;
-    if(this.errors.length>0) mes += 'Errors:' + lnbrk + this.errors + lnbrk;
-    if(this.warnings.length>0) mes += 'Warnings:' +lnbrk + this.warnings + lnbrk;
-    if(this.infos.length>0) mes += 'Infos:' +lnbrk+ this.infos + lnbrk;
-    if(this.debug) mes += 'Debug messages:' +lnbrk+ this.debugMsg + lnbrk;
+      mes += p + ': ' + this.params[p] + options.lf;
+    if(this.errors.length>0 && ((options.verbose & 1) == 1)) mes += 'Errors:' + options.lf + this.errors + options.lf;
+    if(this.warnings.length>0 && ((options.verbose & 2) == 2)) mes += 'Warnings:' +options.lf + this.warnings + options.lf;
+    if(this.infos.length>0 && ((options.verbose & 4) == 4)) mes += 'Infos:' +options.lf+ this.infos + options.lf;
+    if(this.debug && ((options.verbose & 8) == 8)) mes += 'Debug messages:' +options.lf+ this.debugMsg + options.lf;
+    if(options.clr_mes)
+      this.errors = this.infos = this.warnings = this.debug = '';
     return mes;
   }
   this.getRandomBytes = function(len){
