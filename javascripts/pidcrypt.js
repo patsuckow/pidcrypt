@@ -93,7 +93,7 @@ function pidCrypt(){
   this.params.key = '';
   //iv should always be a Hex String e.g. AD0E76FF6535AD...
   this.params.iv = '';
-  this.params.noclear = false;
+  this.params.clear = true;
   this.setDefaults();
   this.errors = '';
   this.warnings = '';
