@@ -110,7 +110,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     pObj.input = input;
     pObj.key = key
     pObj.iv = iv
-    this.setParams(pObj)
+    this.env.setParams(pObj)
   }
 
   pidCrypt.AES.CBC.prototype.getAllMessages = function(lnbrk){
