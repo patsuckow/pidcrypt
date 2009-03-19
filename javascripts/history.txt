@@ -1,5 +1,6 @@
 Release 002, in progress
 **************   Bug fixes   **************
+- init clears old output from previous operation
 
 ************** New functions **************
 pidCrypt

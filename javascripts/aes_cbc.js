@@ -53,6 +53,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     var k_iv = this.createKeyAndIv({password:password, salt: pObj.salt, bits: pObj.nBits});
     pObj.key = k_iv.key;
     pObj.iv = k_iv.iv;
+    pObj.output = '';
     env.setParams(pObj)
     this.aes.init();
   }
