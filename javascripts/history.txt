@@ -2,13 +2,36 @@ Release 002, in progress
 **************   Bug fixes   **************
 - init clears old output from previous operation
 
-************** New functions **************
+**************      New      **************
 pidCrypt
  - setDefaults(), set all default values
+ - new enviroment parameter params.dataIn: stores input data
+ - new enviroment parameter params.dataOut: stores output data
+ - new enviroment parameter params.decryptIn: stores input data of decrypt
+   function
+ - new enviroment parameter params.clear. if set to false with options
+   the params are not cleared from memory (clear=true is overridden by
+   debug=true!).
+ - obsolete enviroment parameters input and output
+
 
 AES-CBC
- - init(password, options), init without input
+ - init(password, options), init without input (for decrypt you have to specify
+   the salt in options)
  - isError() returns true if error messages are set by an operation
+ - new function encryptRaw(byteArray): no coding operations are done (eg. base64)
+ - new function decryptRaw(byteArray): no coding operations are done (eg. base64)
+ - new function encryptText(text,password,options): no init call is needed
+ - new function decryptText(text,password,options): no init call is needed
+
+AES-CTR
+ - init(password, options), init without input (for decrypt you have to specify
+   the salt in options)
+ - isError() returns true if error messages are set by an operation
+ - new function encryptRaw(byteArray): no coding operations are done (eg. base64)
+ - new function decryptRaw(byteArray): no coding operations are done (eg. base64)
+ - new function encryptText(text,password,options): no init call is needed
+ - new function decryptText(text,password,options): no init call is needed
 
 **************   Changes     **************
 pidCrypt
@@ -16,12 +39,16 @@ pidCrypt
    you can set the verbose level of the messages with any combination of 4 bits.
    1 = Error,2 = Warnings, 4 = Info, 8 = Debug. e.g. 10 (1010) gives you
    warnings and debugs. options.clr_mes = true clears all previous messages.
+ - setParams(pObj) sets now all pObj parameters as params (eg. pObj.newParam
+   will create params.newParam with value pObj[newParam]
 
 AES-CBC
+ - encrypt(text) and decrypt(cryptedtext) now understand an input param .
+   you can now call init() once and encrypt with same parameters.
+
+AES-CTR
  - encrypt(input) and decrypt(input) now understand the param input.
-   you can now call init() once and en-/decrypt with same parameters.
- - new param clear. if set to false with options the params are not cleared
-   from memory.
+   you can now call init() once and encrypt with same parameters.
 
 SHA-1, SHA-256
  - SHA hashing routines without automatic UTF-8 encoding
