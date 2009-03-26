@@ -27,119 +27,120 @@ if(typeof(pidCrypt) != 'undefined' &&
    typeof(pidCrypt.MD5) != 'undefined')
 {
   pidCrypt.AES.CBC = function () {
-    this.env = new pidCrypt();
-    this.aes = new pidCrypt.AES(this.env);
+    this.pidcrypt = new pidCrypt();
+    this.aes = new pidCrypt.AES(this.pidcrypt);
     this.getOutput = function(){
-      return this.env.getOutput();
+      return this.pidcrypt.getOutput();
     }
     this.getAllMessages = function(lnbrk){
-      return this.env.getAllMessages(lnbrk);
+      return this.pidcrypt.getAllMessages(lnbrk);
     }
   }
 /**
- * Initialize CBC for encryption from password.
- * @param  password: String
- * @param  options {
- *           nBits: aes bit size (128, 192 or 256)
- *         }
+* Initialize CBC for encryption from password.
+* @param  password: String
+* @param  options {
+*           nBits: aes bit size (128, 192 or 256)
+*         }
 */
   pidCrypt.AES.CBC.prototype.init = function(password, options) {
     if(!options) options = {};
-    var env = this.env;
-    env.setDefaults();
-    var pObj = this.env.getParams(); //loading defaults
+    var pidcrypt = this.pidcrypt;
+    pidcrypt.setDefaults();
+    var pObj = this.pidcrypt.getParams(); //loading defaults
     for(var o in options)
       pObj[o] = options[o];
     var k_iv = this.createKeyAndIv({password:password, salt: pObj.salt, bits: pObj.nBits});
     pObj.key = k_iv.key;
     pObj.iv = k_iv.iv;
-    pObj.output = '';
-    env.setParams(pObj)
+    pObj.dataOut = '';
+    pidcrypt.setParams(pObj)
     this.aes.init();
   }
 
 /**
- * Initialize CBC for encryption from password.
- * @param  input: plain text
- * @param  password: String
- * @param  options {
- *           nBits: aes bit size (128, 192 or 256)
- *         }
+* Initialize CBC for encryption from password.
+* @param  dataIn: plain text
+* @param  password: String
+* @param  options {
+*           nBits: aes bit size (128, 192 or 256)
+*         }
 */
-  pidCrypt.AES.CBC.prototype.initEncrypt = function(input, password, options) {
+  pidCrypt.AES.CBC.prototype.initEncrypt = function(dataIn, password, options) {
     this.init(password,options);//call standard init
-    this.env.setParams({input:input})//setting input for encryption
+    this.pidcrypt.setParams({dataIn:dataIn, encryptIn: dataIn.toByteArray()})//setting input for encryption
   }
 /**
- * Initialize CBC for decryption from encrypted text (compatible with openssl).
- * see thread http://thedotnet.com/nntp/300307/showpost.aspx
- * @param  crypted: base64 encoded aes encrypted text
- * @param  passwd: String
- * @param  options {
- *           nBits: aes bit size (128, 192 or 256),
- *           UTF8: boolean, set to false when decrypting certificates,
- *           A0_PAD: boolean, set to false when decrypting certificates
- *         }
+* Initialize CBC for decryption from encrypted text (compatible with openssl).
+* see thread http://thedotnet.com/nntp/300307/showpost.aspx
+* @param  crypted: base64 encoded aes encrypted text
+* @param  passwd: String
+* @param  options {
+*           nBits: aes bit size (128, 192 or 256),
+*           UTF8: boolean, set to false when decrypting certificates,
+*           A0_PAD: boolean, set to false when decrypting certificates
+*         }
 */
   pidCrypt.AES.CBC.prototype.initDecrypt = function(crypted, password, options){
     if(!options) options = {};
-    var env = this.env;
+    var pidcrypt = this.pidcrypt;
+    pidcrypt.setParams({dataIn:crypted})
     if(!password)
-      env.appendError('pidCrypt.AES.CBC.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
-    var cipherText = crypted.decodeBase64();
-    if(cipherText.indexOf('Salted__') != 0)
-      return env.appendError('pidCrypt.AES.CBC.initFromCrypt: Sorry, unknown encryption method.\n');
-    var salt = cipherText.substr(8,8);//extract salt from crypted text
+      pidcrypt.appendError('pidCrypt.AES.CBC.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
+    var ciphertext = crypted.decodeBase64();
+    if(ciphertext.indexOf('Salted__') != 0)
+      return pidcrypt.appendError('pidCrypt.AES.CBC.initFromCrypt: Sorry, unknown encryption method.\n');
+    var salt = ciphertext.substr(8,8);//extract salt from crypted text
     options.salt = salt.convertToHex();//salt is always hex string
     this.init(password,options);//call standard init
-    cipherText = cipherText.substr(16)
-    env.setParams({input:cipherText.encodeBase64()})
+    ciphertext = ciphertext.substr(16);
+    pidcrypt.setParams({decryptIn:ciphertext.toByteArray()})
   }
 /**
- * Init CBC En-/Decryption from given parameters.
- * @param  input: plain text or base64 encrypted text
- * @param  key: HEX String (16, 24 or 32 byte)
- * @param  iv: HEX String (16 byte)
- * @param  options {
- *           salt: array of bytes (8 byte),
- *           nBits: aes bit size (128, 192 or 256)
- *         }
+* Init CBC En-/Decryption from given parameters.
+* @param  input: plain text or base64 encrypted text
+* @param  key: HEX String (16, 24 or 32 byte)
+* @param  iv: HEX String (16 byte)
+* @param  options {
+*           salt: array of bytes (8 byte),
+*           nBits: aes bit size (128, 192 or 256)
+*         }
 */
-  pidCrypt.AES.CBC.prototype.initByValues = function(input, key, iv, options){
+  pidCrypt.AES.CBC.prototype.initByValues = function(dataIn, key, iv, options){
     var pObj = {};
     this.init('',options);//empty password, we are setting key, iv manually
-    pObj.input = input;
+    pObj.dataIn = dataIn;
     pObj.key = key
     pObj.iv = iv
-    this.env.setParams(pObj)
+    this.pidcrypt.setParams(pObj)
   }
 
   pidCrypt.AES.CBC.prototype.getAllMessages = function(lnbrk){
-    return this.env.getAllMessages(lnbrk);
+    return this.pidcrypt.getAllMessages(lnbrk);
   }
 /**
- * Creates key of length nBits and an iv form password+salt
- * compatible to openssl.
- * See thread http://thedotnet.com/nntp/300307/showpost.aspx
- *
- * @param  pObj {
- *    password: password as String
- *    [salt]: salt as String, default 8 byte random salt
- *    [bits]: no of bits, default pidCrypt.params.nBits = 256
- * }
- *
- * @return         {iv: HEX String, key: HEX String}
- */
+* Creates key of length nBits and an iv form password+salt
+* compatible to openssl.
+* See thread http://thedotnet.com/nntp/300307/showpost.aspx
+*
+* @param  pObj {
+*    password: password as String
+*    [salt]: salt as String, default 8 byte random salt
+*    [bits]: no of bits, default pidCrypt.params.nBits = 256
+* }
+*
+* @return         {iv: HEX String, key: HEX String}
+*/
   pidCrypt.AES.CBC.prototype.createKeyAndIv = function(pObj){
-    var env = this.env;
+    var pidcrypt = this.pidcrypt;
     var retObj = {};
     var count = 1;//openssl rounds
     var miter = "3";
     if(!pObj) pObj = {};
     if(!pObj.salt) {
-      pObj.salt = env.getRandomBytes(8);
+      pObj.salt = pidcrypt.getRandomBytes(8);
       pObj.salt = byteArray2String(pObj.salt).convertToHex();
-      env.setParams({salt: pObj.salt});
+      pidcrypt.setParams({salt: pObj.salt});
     }
     var data00 = pObj.password + pObj.salt.convertFromHex();
     var hashtarget = '';
@@ -174,33 +175,35 @@ if(typeof(pidCrypt) != 'undefined' &&
         retObj.iv = keymaterial[3];
         break;
        default:
-         env.appendError('pidCrypt.AES.CBC.createKeyAndIv: Sorry, only 128, 192 and 256 bits are supported.\nBits('+typeof(pObj.bits)+') = '+pObj.bits);
+         pidcrypt.appendError('pidCrypt.AES.CBC.createKeyAndIv: Sorry, only 128, 192 and 256 bits are supported.\nBits('+typeof(pObj.bits)+') = '+pObj.bits);
     }
     return retObj;
   }
 /**
- * Encrypt a text using AES encryption in CBC mode of operation
- *  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
- *
- * Unicode multi-byte character safe
- *
- * @return          encrypted text
- */
-  pidCrypt.AES.CBC.prototype.encrypt = function(plaintext) {
-    var env = this.env;
+* Encrypt a text using AES encryption in CBC mode of operation
+*  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+*
+* one of the pidCrypt.AES.CBC init funtions must be called before execution
+*
+* @param  byteArray: text to encrypt as array of bytes
+*
+* @return aes-cbc encrypted text
+*/
+  pidCrypt.AES.CBC.prototype.encryptRaw = function(byteArray) {
+    var pidcrypt = this.pidcrypt;
     var aes = this.aes;
-    var salt = '';
-    var p = env.getParams(); //get parameters for operation set by init
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(!byteArray)
+      byteArray = p.encryptIn;
+    pidcrypt.setParams({encryptIn: byteArray});
+    if(!p.dataIn) pidcrypt.setParams({dataIn:byteArray});
     var iv = p.iv.convertFromHex();
-    plaintext = (!plaintext) ? p.input : plaintext;
-    if(p.UTF8)
-      plaintext = plaintext.encodeUTF8();
     //PKCS5 paddding
-    var charDiv = p.blockSize - ((plaintext.length+1) % p.blockSize);
+    var charDiv = p.blockSize - ((byteArray.length+1) % p.blockSize);
     if(p.A0_PAD)
-      plaintext += String.fromCharCode(10)
-    for(var c=0;c<charDiv;c++) plaintext += String.fromCharCode(charDiv);
-    var nBytes = p.nBits/8;  // no bytes in key
+      byteArray[byteArray.length] = 10
+    for(var c=0;c<charDiv;c++) byteArray[byteArray.length] = charDiv;
+    var nBytes = p.nBits/8;  // nr of bytes in key
     var keyBytes = new Array(nBytes);
     var key = p.key.convertFromHex();
     for (var i=0; i<nBytes; i++) {
@@ -208,47 +211,105 @@ if(typeof(pidCrypt) != 'undefined' &&
     }
     // generate key schedule
     var keySchedule = aes.expandKey(keyBytes);
-    var blockCount = Math.ceil(plaintext.length/p.blockSize);
+    var blockCount = Math.ceil(byteArray.length/p.blockSize);
     var ciphertxt = new Array(blockCount);  // ciphertext as array of strings
     var textBlock = [];
     var state = iv.toByteArray();
     for (var b=0; b<blockCount; b++) {
       // XOR last block and next data block, then encrypt that
-      textBlock = plaintext.substr(b*p.blockSize,p.blockSize).toByteArray();
+      textBlock = byteArray.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
       state = aes.xOr_Array(state, textBlock);
-      state = aes.encrypt(state, keySchedule);  // -- encrypt block --
+      state = aes.encrypt(state.slice(), keySchedule);  // -- encrypt block --
       ciphertxt[b] = byteArray2String(state);
     }
     var ciphertext = ciphertxt.join('');
+    pidcrypt.setParams({dataOut:ciphertext, encryptOut:ciphertext});
+
+    //remove all parameters from enviroment for more security is debug off
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
+   return ciphertext;
+  }
+
+
+/**
+* Encrypt a text using AES encryption in CBC mode of operation
+*  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+*
+* Unicode multi-byte character safe
+*
+* one of the pidCrypt.AES.CBC init funtions must be called before execution
+*
+* @param  plaintext: text to encrypt
+*
+* @return aes-cbc encrypted text openssl compatible
+*/
+ pidCrypt.AES.CBC.prototype.encrypt = function(plaintext) {
+    var pidcrypt = this.pidcrypt;
+    var salt = '';
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(!plaintext)
+      plaintext = p.dataIn;
+    if(p.UTF8)
+      plaintext = plaintext.encodeUTF8();
+    pidcrypt.setParams({dataIn:plaintext, encryptIn: plaintext.toByteArray()});
+    var ciphertext = this.encryptRaw()
     salt = 'Salted__' + p.salt.convertFromHex();
     ciphertext = salt  + ciphertext;
     ciphertext = ciphertext.encodeBase64();  // encode in base64
+    pidcrypt.setParams({dataOut:ciphertext});
     //remove all parameters from enviroment for more security is debug off
-    if(!env.isDebug() && env.clear) env.clearParams();
-    env.setParams({output:ciphertext});
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
 
     return ciphertext;
   }
+
 /**
- * Decrypt a text encrypted by AES in CBC mode of operation
- *
- * one of the pidCrypt.AES.CBC init funtions must be called before execution
- *
- * @return           decrypted text as String
- */
-  pidCrypt.AES.CBC.prototype.decrypt = function(ciphertext) {
-    var env = this.env;
+* Encrypt a text using AES encryption in CBC mode of operation
+*  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+*
+* Unicode multi-byte character safe
+*
+* @param  dataIn: plain text
+* @param  password: String
+* @param  options {
+*           nBits: aes bit size (128, 192 or 256)
+*         }
+*
+* @param  plaintext: text to encrypt
+*
+* @return aes-cbc encrypted text openssl compatible
+*
+*/
+  pidCrypt.AES.CBC.prototype.encryptText = function(dataIn,password,options) {
+   this.initEncrypt(dataIn, password, options);
+   return this.encrypt();
+  }
+
+
+
+/**
+* Decrypt a text encrypted by AES in CBC mode of operation
+*
+* one of the pidCrypt.AES.CBC init funtions must be called before execution
+*
+* @param  byteArray: aes-cbc encrypted text as array of bytes
+* 
+* @return           decrypted text as String
+*/
+pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     var aes = this.aes;
-    var p = env.getParams(); //get parameters for operation set by init
+    var pidcrypt = this.pidcrypt;
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(!byteArray)
+      byteArray = p.decryptIn;
+    pidcrypt.setParams({decryptIn: byteArray});
+    if(!p.dataIn) pidcrypt.setParams({dataIn:byteArray});
     if((p.iv.length/2)<p.blockSize)
-      return env.appendError('pidCrypt.AES.CBC.decrypt: Sorry, can not decrypt without complete set of parameters.\n Length of key,iv:'+p.key.length+','+p.iv.length);
+      return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, can not decrypt without complete set of parameters.\n Length of key,iv:'+p.key.length+','+p.iv.length);
     var iv = p.iv.convertFromHex();
-    ciphertext = (!ciphertext) ? p.input : ciphertext;
-    ciphertext = ciphertext.decodeBase64();
-    if(ciphertext.length%p.blockSize != 0)
-      return env.appendError('pidCrypt.AES.CBC.decrypt: Sorry, the encrypted text has the wrong length for aes-cbc mode\n Length of ciphertext:'+ciphertext.length+ciphertext.length%p.blockSize);
-    if(ciphertext.indexOf('Salted__') == 0) ciphertext = ciphertext.substr(16);
-    var nBytes = p.nBits/8;  // no bytes in key
+    if(byteArray.length%p.blockSize != 0)
+      return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, the encrypted text has the wrong length for aes-cbc mode\n Length of ciphertext:'+ciphertext.length+ciphertext.length%p.blockSize);
+    var nBytes = p.nBits/8;  // nr of bytes in key
     var keyBytes = new Array(nBytes);
     var key = p.key.convertFromHex();
     for (var i=0; i<nBytes; i++) {
@@ -256,25 +317,23 @@ if(typeof(pidCrypt) != 'undefined' &&
     }
     // generate key schedule
     var keySchedule = aes.expandKey(keyBytes);
-    // separate ciphertext into blocks
-    var nBlocks = Math.ceil((ciphertext.length) / p.blockSize);
-    var ct = new Array(nBlocks);
-    for (var b=0; b<nBlocks; b++) ct[b] = ciphertext.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
-    ciphertext = ct;  // ciphertext is now array of block-length strings
+    // separate byteArray into blocks
+    var nBlocks = Math.ceil((byteArray.length) / p.blockSize);
     // plaintext will get generated block-by-block into array of block-length strings
-    var plaintxt = new Array(ciphertext.length);
+    var plaintxt = new Array(nBlocks.length);
     var state = iv.toByteArray();
     var ciphertextBlock = [];
     var dec_state = [];
     for (var b=0; b<nBlocks; b++) {
-      ciphertextBlock = ciphertext[b].slice();
-      dec_state = aes.decrypt(ciphertextBlock.toByteArray(), keySchedule);  // decrypt ciphertext block
+      ciphertextBlock = byteArray.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
+      dec_state = aes.decrypt(ciphertextBlock, keySchedule);  // decrypt ciphertext block
       plaintxt[b] = byteArray2String(aes.xOr_Array(state, dec_state));
-      state = ciphertextBlock.toByteArray(); //save old ciphertext for next round
+      state = ciphertextBlock.slice(); //save old ciphertext for next round
     }
-    // join array of blocks into single plaintext string
+    
+    // join array of blocks into single plaintext string and return it
     var plaintext = plaintxt.join('');
-    if(env.isDebug()) env.appendDebug('Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
+    if(pidcrypt.isDebug()) pidcrypt.appendDebug('Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
     var endByte = plaintext.charCodeAt(plaintext.length-1);
     //remove oppenssl A0 padding eg. 0A05050505
     if(p.A0_PAD){
@@ -286,14 +345,60 @@ if(typeof(pidCrypt) != 'undefined' &&
       if(endByte == firstPadByte && endByte == div)
         plaintext = plaintext.substr(0,plaintext.length-endByte);
     }
+
+    pidcrypt.setParams({dataOut: plaintext,decryptOut: plaintext});
+
+    //remove all parameters from enviroment for more security is debug off
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
+   return plaintext;
+  }
+
+/**
+* Decrypt a base64 encoded text encrypted by AES in CBC mode of operation
+* and removes padding from decrypted text
+*
+* one of the pidCrypt.AES.CBC init funtions must be called before execution
+*
+* @param  ciphertext: base64 encoded and aes-cbc encrypted text
+*
+* @return           decrypted text as String
+*/
+  pidCrypt.AES.CBC.prototype.decrypt = function(ciphertext) {
+    var pidcrypt = this.pidcrypt;
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(ciphertext)
+      pidcrypt.setParams({dataIn:ciphertext, decryptIn: ciphertext.toByteArray()});
+    var plaintext = this.decryptRaw();
     if(p.UTF8)
       plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
-    //remove all parameters from enviroment for more security is debug off
-    if(!env.isDebug() && env.clear) env.clearParams();
-    if(env.isDebug()) env.appendDebug('Removed Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
-    env.setParams({output:plaintext});
+    if(pidcrypt.isDebug()) pidcrypt.appendDebug('Removed Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
+    pidcrypt.setParams({dataOut:plaintext});
 
+    //remove all parameters from enviroment for more security is debug off
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
     return plaintext;
   }
+
+/**
+* Decrypt a base64 encoded text encrypted by AES in CBC mode of operation
+* and removes padding from decrypted text
+*
+* one of the pidCrypt.AES.CBC init funtions must be called before execution
+*
+* @param  dataIn: base64 encoded aes encrypted text
+* @param  password: String
+* @param  options {
+*           nBits: aes bit size (128, 192 or 256),
+*           UTF8: boolean, set to false when decrypting certificates,
+*           A0_PAD: boolean, set to false when decrypting certificates
+*         }
+*
+* @return           decrypted text as String
+*/
+   pidCrypt.AES.CBC.prototype.decryptText = function(dataIn, password, options) {
+     this.initDecrypt(dataIn, password, options);
+     return this.decrypt();
+   }
+
 }
 
