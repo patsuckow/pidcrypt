@@ -60,6 +60,10 @@
  * - rsa.js:      RSA (Rivest, Shamir, Adleman Algorithm), Tom Wu
  * - oids.js:     oids (Object Identifiers found in ASN.1), Peter Gutmann
  * - asn1.js:     ASN1 (Abstract Syntax Notation One) parser, Lapo Luchini
+ *
+ * IMPORTANT:
+ * Please report any bugs at http://sourceforge.net/projects/pidcrypt/
+ * Vist http://www.pidder.com/pidcrypt for online demo an documentation
  */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
 
@@ -87,8 +91,12 @@ function pidCrypt(){
   this.debug = true;
   this.params = {};
   //setting default values for params
-  this.params.input = '';
-  this.params.output = '';
+  this.params.dataIn = '';
+  this.params.dataOut = '';
+  this.params.decryptIn = '';
+  this.params.decryptOut = '';
+  this.params.encryptIn = '';
+  this.params.encryptOut = '';
   //key should always be a Hex String e.g. AD0E76FF6535AD...
   this.params.key = '';
   //iv should always be a Hex String e.g. AD0E76FF6535AD...
@@ -102,21 +110,14 @@ function pidCrypt(){
   //set and get methods for base class
   this.setParams = function(pObj){
     if(!pObj) pObj = {};
-    if(pObj.key)
-      this.params.key = pObj.key;
-    if(pObj.iv)
-      this.params.iv = pObj.iv;
-    if(pObj.input)
-      this.params.input = pObj.input;
-    if(pObj.output)
-      this.params.output = pObj.output;
-    if(pObj.nBits)
-      this.params.nBits = pObj.nBits;
-    if(pObj.salt)
-      this.params.salt = pObj.salt;
+    for(var p in pObj)
+      this.params[p] = pObj[p];
   }
   this.getParams = function(){
     return this.params;
+  }
+  this.getParam = function(p){
+    return this.params[p] || '';
   }
   this.clearParams = function(){
       this.params= {};
@@ -125,7 +126,7 @@ function pidCrypt(){
     return this.params.nBits;
   }
   this.getOutput = function(){
-    return this.params.output;
+    return this.params.dataOut;
   }
   this.setError = function(str){
     this.error = str;
@@ -169,6 +170,7 @@ function pidCrypt(){
     var mes = '';
     for(var p in this.params)
       mes += p + ': ' + this.params[p] + options.lf;
+    if(this.debug) mes += 'debug: ' + this.debug + options.lf;
     if(this.errors.length>0 && ((options.verbose & 1) == 1)) mes += 'Errors:' + options.lf + this.errors + options.lf;
     if(this.warnings.length>0 && ((options.verbose & 2) == 2)) mes += 'Warnings:' +options.lf + this.warnings + options.lf;
     if(this.infos.length>0 && ((options.verbose & 4) == 4)) mes += 'Infos:' +options.lf+ this.infos + options.lf;
