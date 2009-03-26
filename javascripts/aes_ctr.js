@@ -29,58 +29,69 @@
 if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
 {
   pidCrypt.AES.CTR = function () {
-    this.env = new pidCrypt();
-    this.aes = new  pidCrypt.AES(this.env);
+    this.pidcrypt = new pidCrypt();
+    this.aes = new  pidCrypt.AES(this.pidcrypt);
     this.getOutput = function(){
-      return this.env.getOutput();
+      return this.pidcrypt.getOutput();
     }
   }
 /**
+ * Initialize CTR for encryption from password.
+ * @param  password: String
+ * @param  options {
+ *           nBits: aes bit size (128, 192 or 256)
+ *         }
+*/
+  pidCrypt.AES.CTR.prototype.init = function(password, options) {
+    if(!options) options = {};
+    if(!password)
+      this.pidcrypt.appendError('pidCrypt.AES.CTR.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
+    this.pidcrypt.setDefaults();
+    var pObj = this.pidcrypt.getParams(); //loading defaults
+    for(var o in options)
+      pObj[o] = options[o];
+    pObj.password = password;
+    pObj.key = password;
+    pObj.dataOut = '';
+    this.pidcrypt.setParams(pObj);
+    this.aes.init();
+  }
+
+/**
 * Init CTR Encryption from password.
-* @param  input: plain text
+* @param  dataIn: plain text
 * @param  password: String
 * @param  options {
 *           nBits: aes bit size (128, 192 or 256)
 *         }
 */
-  pidCrypt.AES.CTR.prototype.initEncrypt = function(input, password, options) {
-    if(!options) options = {};
-    var pObj = this.env.getParams();//loading defaults
-    for(var o in options)
-        pObj[o] = options[o];
-    var env = this.env;
-    pObj.input = input;
-    pObj.key = password;
-    env.setParams(pObj)
-    this.aes.init();
+  pidCrypt.AES.CTR.prototype.initEncrypt = function(dataIn, password, options) {
+    this.init(password, options);
+    this.pidcrypt.setParams({dataIn:dataIn, encryptIn: dataIn.toByteArray()})//setting input for encryption
  }
 /**
 * Init CTR for decryption from encrypted text (encrypted with pidCrypt.AES.CTR)
 * @param  crypted: base64 encrypted text
-* @param  passwd: String
+* @param  password: String
 * @param  options {
 *           nBits: aes bit size (128, 192 or 256)
 *         }
 */
   pidCrypt.AES.CTR.prototype.initDecrypt = function(crypted, password, options){
-    if(!options) options = {};
-    var env = this.env;
-    if(!password)
-      env.appendError('pidCrypt.AES.CTR.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
-    var pObj = this.env.getParams();//loading defaults
-    for(var o in options)
-      pObj[o] = options[o];
+    var pObj = {};
+    this.init(password, options);
+    pObj.dataIn = crypted;
     var cipherText = crypted.decodeBase64();
+    // recover nonce from 1st 8 bytes of ciphertext
     var salt = cipherText.substr(0,8);//nonce in ctr
     pObj.salt = salt.convertToHex();
-    pObj.key = password;
     cipherText = cipherText.substr(8)
-    pObj.input = cipherText.encodeBase64();
-    env.setParams(pObj)
-    this.aes.init();
+    pObj.decryptIn = cipherText.toByteArray();
+    this.pidcrypt.setParams(pObj);
   }
+
   pidCrypt.AES.CTR.prototype.getAllMessages = function(lnbrk){
-    return this.env.getAllMessages(lnbrk);
+    return this.pidcrypt.getAllMessages(lnbrk);
   }
 
   pidCrypt.AES.CTR.prototype.getCounterBlock = function(bs){
@@ -93,28 +104,29 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     // encode nonce with seconds in 1st 4 bytes, and (repeated) ms part filling
     // 2nd 4 bytes
     for (var i=0; i<4; i++) ctrBlk[i] = (nonceSec >>> i*8) & 0xff;
-    for (var i=0; i<4; i++) ctrBlk[i+4] = nonceMs & 0xff;
+    for (i=0; i<4; i++) ctrBlk[i+4] = nonceMs & 0xff;
 
     return ctrBlk.slice();
   }
+
 /**
-* Encrypt a text using AES encryption in CBC mode of operation
+* Encrypt a text using AES encryption in CTR mode of operation
 *  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+* one of the pidCrypt.AES.CTR init funtions must be called before execution
 *
-* Unicode multi-byte character safe
+* @param  plaintext: text to encrypt
+*
 *
 * @return          encrypted text
 */
-  pidCrypt.AES.CTR.prototype.encrypt = function() {
-    var env = this.env;
+  pidCrypt.AES.CTR.prototype.encryptRaw = function(byteArray) {
     var aes = this.aes;
-    var p = env.getParams(); //get parameters for operation set by init
-    var plaintext = p.input;
+    var pidcrypt = this.pidcrypt;
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(!byteArray)
+      byteArray = p.encryptIn;
+    pidcrypt.setParams({encryptIn:byteArray});
     var password = p.key;
-    if(p.UTF8){
-      plaintext = plaintext.encodeUTF8();
-      password = password.encodeUTF8();
-    }
     // use AES itself to encrypt password to get cipher key (using plain
     // password as source for key expansion) - gives us well encrypted key
     var nBytes = p.nBits/8;  // no bytes in key
@@ -126,11 +138,11 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     var counterBlock = this.getCounterBlock(p.blockSize);
     // and convert it to a string to go on the front of the ciphertext
     var ctrTxt = byteArray2String(counterBlock.slice(0,8));
-    env.setParams({salt:ctrTxt.convertToHex()});
+    pidcrypt.setParams({salt:ctrTxt.convertToHex()});
     // generate key schedule - an expansion of the key into distinct Key Rounds
     // for each round
     var keySchedule = aes.expandKey(key);
-    var blockCount = Math.ceil(plaintext.length/p.blockSize);
+    var blockCount = Math.ceil(byteArray.length/p.blockSize);
     var ciphertxt = new Array(blockCount);  // ciphertext as array of strings
     for (var b=0; b<blockCount; b++) {
     // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
@@ -139,85 +151,178 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
       for (var c=0; c<4; c++) counterBlock[15-c-4] = (b/0x100000000 >>> c*8)
       var cipherCntr = aes.encrypt(counterBlock, keySchedule);  // -- encrypt counter block --
       // block size is reduced on final block
-      var blockLength = b<blockCount-1 ? p.blockSize : (plaintext.length-1)%p.blockSize+1;
+      var blockLength = b<blockCount-1 ? p.blockSize : (byteArray.length-1)%p.blockSize+1;
       var cipherChar = new Array(blockLength);
       for (var i=0; i<blockLength; i++) {  // -- xor plaintext with ciphered counter char-by-char --
-        cipherChar[i] = cipherCntr[i] ^ plaintext.charCodeAt(b*p.blockSize+i);
+        cipherChar[i] = cipherCntr[i] ^ byteArray[b*p.blockSize+i];
         cipherChar[i] = String.fromCharCode(cipherChar[i]);
       }
       ciphertxt[b] = cipherChar.join('');
     }
+//    alert(ciphertxt.join('').encodeBase64());
     // Array.join is more efficient than repeated string concatenation
     var ciphertext = ctrTxt + ciphertxt.join('');
+    pidcrypt.setParams({dataOut:ciphertext, encryptOut:ciphertext});
+    //remove all parameters from enviroment for more security is debug off
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
+  return ciphertext;  
+}
+
+/**
+* Encrypt a text using AES encryption in CTR mode of operation
+*  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+* one of the pidCrypt.AES.CTR init funtions must be called before execution
+*
+* Unicode multi-byte character safe
+*
+*
+* @param  plaintext: text to encrypt
+*
+*
+* @return          encrypted text
+*/
+  pidCrypt.AES.CTR.prototype.encrypt = function(plaintext) {
+    var pidcrypt = this.pidcrypt;
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(!plaintext)
+      plaintext = p.dataIn;
+    if(p.UTF8){
+      plaintext = plaintext.encodeUTF8();
+      pidcrypt.setParams({key:pidcrypt.getParam('key').encodeUTF8()});
+    }
+    pidcrypt.setParams({dataIn:plaintext, encryptIn: plaintext.toByteArray()});
+    var ciphertext = this.encryptRaw();
     ciphertext = ciphertext.encodeBase64();  // encode in base64
-    //remove all parameters from enviroment for more security
-    //comment the following line for development to recieve more information
-    env.clearParams();
-    env.setParams({output:ciphertext});
+    pidcrypt.setParams({dataOut:ciphertext});
+    //remove all parameters from enviroment for more security is debug off
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
 
     return ciphertext;
   }
+
 /**
-* Decrypt a text encrypted by AES in CBC mode of operation
+* Encrypt a text using AES encryption in CTR mode of operation
+*  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+* one of the pidCrypt.AES.CTR init funtions must be called before execution
+*
+* Unicode multi-byte character safe
+*
+* @param  dataIn: plain text
+* @param  password: String
+* @param  options {
+*           nBits: aes bit size (128, 192 or 256)
+*         }
+*
+* @return          encrypted text
+*/
+  pidCrypt.AES.CTR.prototype.encryptText = function(dataIn, password, options) {
+   this.initEncrypt(dataIn, password, options);
+   return this.encrypt();
+ }
+
+
+/**
+* Decrypt a text encrypted by AES in CTR mode of operation
 *
 * one of the pidCrypt.AES.CTR init funtions must be called before execution
 *
+* @param  ciphertext: text to decrypt
+*
 * @return           decrypted text as String
 */
-  pidCrypt.AES.CTR.prototype.decrypt = function() {
-    var env = this.env;
+  pidCrypt.AES.CTR.prototype.decryptRaw = function(byteArray) {
+    var pidcrypt = this.pidcrypt;
     var aes = this.aes;
-    var p = env.getParams(); //get parameters for operation set by init
-    var ciphertext = p.input.decodeBase64();
-    var password = p.key;
-    if(p.UTF8){
-      password = password.encodeUTF8();
-    }
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(!byteArray)
+      byteArray = p.decryptIn;
+    pidcrypt.setParams({decryptIn:byteArray});
+    if(!p.dataIn) pidcrypt.setParams({dataIn:byteArray});
     // use AES to encrypt password (mirroring encrypt routine)
     var nBytes = p.nBits/8;  // no bytes in key
     var pwBytes = new Array(nBytes);
     for (var i=0; i<nBytes; i++) {
-      pwBytes[i] = isNaN(password.charCodeAt(i)) ? 0 : password.charCodeAt(i);
+      pwBytes[i] = isNaN(p.key.charCodeAt(i)) ? 0 : p.key.charCodeAt(i);
     }
     var key = aes.encrypt(pwBytes.slice(0,16), aes.expandKey(pwBytes));  // gives us 16-byte key
     key = key.concat(key.slice(0, nBytes-16));  // expand key to 16/24/32 bytes long
-    // recover nonce from 1st 8 bytes of ciphertext
     var counterBlock = new Array(8);
     var ctrTxt = p.salt.convertFromHex();
-    for (var i=0; i<8; i++) counterBlock[i] = ctrTxt.charCodeAt(i);
+    for (i=0; i<8; i++) counterBlock[i] = ctrTxt.charCodeAt(i);
     // generate key schedule
     var keySchedule =  aes.expandKey(key);
     // separate ciphertext into blocks (skipping past initial 8 bytes)
-    var nBlocks = Math.ceil((ciphertext.length) / p.blockSize);
-    var ct = new Array(nBlocks);
-    for (var b=0; b<nBlocks; b++) ct[b] = ciphertext.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
-    ciphertext = ct;  // ciphertext is now array of block-length strings
+    var nBlocks = Math.ceil((byteArray.length) / p.blockSize);
+    var blockArray = new Array(nBlocks);
+    for (var b=0; b<nBlocks; b++) blockArray[b] = byteArray.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
     // plaintext will get generated block-by-block into array of block-length
     // strings
-    var plaintxt = new Array(ciphertext.length);
+    var plaintxt = new Array(blockArray.length);
     var cipherCntr = [];
     var plaintxtByte = [];
-    for (var b=0; b<nBlocks; b++) {
+    for (b=0; b<nBlocks; b++) {
     // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
       for (var c=0; c<4; c++) counterBlock[15-c] = ((b) >>> c*8) & 0xff;
-      for (var c=0; c<4; c++) counterBlock[15-c-4] = (((b+1)/0x100000000-1) >>> c*8) & 0xff;
+      for (c=0; c<4; c++) counterBlock[15-c-4] = (((b+1)/0x100000000-1) >>> c*8) & 0xff;
       cipherCntr = aes.encrypt(counterBlock, keySchedule);  // encrypt counter block
-      plaintxtByte = new Array(ciphertext[b].length);
-      for (var i=0; i<ciphertext[b].length; i++) {
+      plaintxtByte = new Array(blockArray[b].length);
+      for (i=0; i<blockArray[b].length; i++) {
       // -- xor plaintxt with ciphered counter byte-by-byte --
-        plaintxtByte[i] = cipherCntr[i] ^ ciphertext[b].charCodeAt(i);
+        plaintxtByte[i] = cipherCntr[i] ^ blockArray[b][i];
         plaintxtByte[i] = String.fromCharCode(plaintxtByte[i]);
       }
       plaintxt[b] = plaintxtByte.join('');
     }
     // join array of blocks into single plaintext string
     var plaintext = plaintxt.join('');
-    plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
-    //remove all parameters from enviroment for more security
-    //comment the following line for development to recieve more information
-    env.clearParams();
-    env.setParams({output:plaintext});
+    pidcrypt.setParams({dataOut:plaintext});
+    //remove all parameters from enviroment for more security is debug off
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
 
     return plaintext;
   }
+  
+/**
+* Decrypt a text encrypted by AES in CTR mode of operation
+*
+* one of the pidCrypt.AES.CTR init funtions must be called before execution
+*
+* @param  ciphertext: text to decrypt
+*
+* @return  decrypted text as String
+*/
+  pidCrypt.AES.CTR.prototype.decrypt = function(ciphertext) {
+    var pidcrypt = this.pidcrypt;
+    var p = pidcrypt.getParams(); //get parameters for operation set by init
+    if(ciphertext)
+      pidcrypt.setParams({dataIn:ciphertext, decryptIn: ciphertext.toByteArray()});
+    if(p.UTF8){
+      pidcrypt.setParams({key:pidcrypt.getParam('key').encodeUTF8()});
+    }
+    var plaintext = this.decryptRaw();
+    plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
+
+    pidcrypt.setParams({dataOut:plaintext});
+    //remove all parameters from enviroment for more security is debug off
+    if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
+
+    return plaintext;
+  }
+/**
+* Decrypt a text encrypted by AES in CTR mode of operation
+*
+* one of the pidCrypt.AES.CTR init funtions must be called before execution
+*
+* @param  crypted: base64 encrypted text
+* @param  password: String
+* @param  options {
+*
+* @return  decrypted text as String
+*/
+  pidCrypt.AES.CTR.prototype.decryptText = function(crypted, password, options) {
+    this.initDecrypt(crypted, password, options);
+    return this.decrypt();
+  }
+
+
 }
