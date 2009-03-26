@@ -7,7 +7,10 @@ pidCrypt
  - setDefaults(), set all default values
  - new enviroment parameter params.dataIn: stores input data
  - new enviroment parameter params.dataOut: stores output data
+ - new enviroment parameter params.encryptIn: stores input data of encrypt
+ - new enviroment parameter params.encryptOut: stores output data of encrypt
  - new enviroment parameter params.decryptIn: stores input data of decrypt
+ - new enviroment parameter params.decryptOut: stores output data of decrypt
    function
  - new enviroment parameter params.clear. if set to false with options
    the params are not cleared from memory (clear=true is overridden by
