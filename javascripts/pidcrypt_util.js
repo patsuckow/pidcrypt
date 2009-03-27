@@ -37,6 +37,8 @@ String.prototype.encodeBase64 = function(utf8encode) {  // http://tools.ietf.org
   var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   utf8encode =  (typeof utf8encode == 'undefined') ? false : utf8encode;
   var o1, o2, o3, bits, h1, h2, h3, h4, e=[], pad = '', c, plain, coded;
+  var debug = this.toByteArray();
+//  alert(debug.slice(debug.length-10));
 
   plain = utf8encode ? this.encodeUTF8() : this;
 
@@ -63,7 +65,6 @@ String.prototype.encodeBase64 = function(utf8encode) {  // http://tools.ietf.org
 
   // replace 'A's from padded nulls with '='s
   coded = coded.slice(0, coded.length-pad.length) + pad;
-
   return coded;
 }
 
@@ -79,6 +80,8 @@ String.prototype.decodeBase64 = function(utf8decode) {
   var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   utf8decode =  (typeof utf8decode == 'undefined') ? false : utf8decode;
   var o1, o2, o3, h1, h2, h3, h4, bits, d=[], plain, coded;
+
+  //alert(this.slice(this.length-10).toByteArray());
 
   coded = utf8decode ? this.decodeUTF8() : this;
 
@@ -101,7 +104,10 @@ String.prototype.decodeBase64 = function(utf8decode) {
   }
   plain = d.join('');  // join() is far faster than repeated string concatenation
 
-  return utf8decode ? plain.decodeUTF8() : plain;
+  plain = utf8decode ? plain.decodeUTF8() : plain
+//  plain = plain.substr(0,plain.length-4)
+  var debug = plain.toByteArray();
+  return plain;
 }
 
 /**
@@ -160,18 +166,13 @@ String.prototype.decodeUTF8 = function() {
  * @return hex string e.g. "hello world" => "68656c6c6f20776f726c64"
  */
 String.prototype.convertToHex = function() {
-  var r = "";
-  var h ='';
-  var hex = new Array ("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f");
+  var hs ='';
+  var hv ='';
   for (var i=0; i<this.length; i++) {
-    h = hex[this.charCodeAt(i) >> 4] + hex[this.charCodeAt(i) & 0xf];
-    if(h.indexOf('undefined') < 0)
-      r += h;
-    else {
-       r+='xx';
-    }
+    hv = this.charCodeAt(i).toString(16);
+    hs += (hv.length == 1) ? '0'+hv : hv;
   }
-  return r;
+  return hs;
 }
 
 /**
@@ -182,20 +183,25 @@ String.prototype.convertToHex = function() {
  */
 String.prototype.convertFromHex = function(){
   var s = "";
-  var b = "";
-  var hex = {};
-  hex['0'] = 0;  hex['1'] = 1;  hex['2'] = 2;  hex['3'] = 3;
-  hex['4'] = 4;  hex['5'] = 5;  hex['6'] = 6;  hex['7'] = 7;
-  hex['8'] = 8;  hex['9'] = 9;  hex['a'] = 10; hex['b'] = 11;
-  hex['c'] = 12; hex['d'] = 13; hex['e'] = 14; hex['f'] = 15;
-  hex['A'] = 10; hex['B'] = 11; hex['C'] = 12; hex['D'] = 13;
-  hex['E'] = 14; hex['F'] = 15;
   for(var i= 0;i<this.length;i+=2){
-   b = String.fromCharCode(hex[this[i]]*16+hex[this[i+1]])
-   if(typeof(b) != 'undefined')
-     s += b;
+    s += String.fromCharCode(parseInt(this.substring(i,i+2),16));
   }
   return s
+}
+
+/**
+ * strips off all linefeeds from a string
+ * returns the the strong without line feeds
+ *
+ * @return string
+ */
+String.prototype.stripLineFeeds = function(){
+//  var re = RegExp(String.fromCharCode(13),'g');//\r
+//  var re = RegExp(String.fromCharCode(10),'g');//\n
+  var s = '';
+  s = this.replace(/\n/g,'');
+  s = s.replace(/\r/g,'');
+  return s;
 }
 
 /**
