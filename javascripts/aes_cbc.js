@@ -227,7 +227,7 @@ if(typeof(pidCrypt) != 'undefined' &&
 
     //remove all parameters from enviroment for more security is debug off
     if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
-   return ciphertext;
+   return ciphertext || '';
   }
 
 
@@ -260,7 +260,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     //remove all parameters from enviroment for more security is debug off
     if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
 
-    return ciphertext;
+    return ciphertext || '';
   }
 
 /**
@@ -308,7 +308,7 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
       return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, can not decrypt without complete set of parameters.\n Length of key,iv:'+p.key.length+','+p.iv.length);
     var iv = p.iv.convertFromHex();
     if(byteArray.length%p.blockSize != 0)
-      return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, the encrypted text has the wrong length for aes-cbc mode\n Length of ciphertext:'+ciphertext.length+ciphertext.length%p.blockSize);
+      return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, the encrypted text has the wrong length for aes-cbc mode\n Length of ciphertext:'+byteArray.length+byteArray.length%p.blockSize);
     var nBytes = p.nBits/8;  // nr of bytes in key
     var keyBytes = new Array(nBytes);
     var key = p.key.convertFromHex();
@@ -350,7 +350,8 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
 
     //remove all parameters from enviroment for more security is debug off
     if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
-   return plaintext;
+
+   return plaintext || '';
   }
 
 /**
@@ -368,6 +369,7 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     var p = pidcrypt.getParams(); //get parameters for operation set by init
     if(ciphertext)
       pidcrypt.setParams({dataIn:ciphertext, decryptIn: ciphertext.toByteArray()});
+    if(!p.decryptIn) pidcrypt.setParams({decryptIn: p.dataIn.toByteArray()});
     var plaintext = this.decryptRaw();
     if(p.UTF8)
       plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
@@ -376,7 +378,7 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
 
     //remove all parameters from enviroment for more security is debug off
     if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
-    return plaintext;
+    return plaintext || '';
   }
 
 /**
