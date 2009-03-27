@@ -133,6 +133,7 @@ function pidCrypt(){
   }
   this.appendError = function(str){
     this.errors += str;
+    return '';
   }
   this.getErrors = function(){
     return this.errors;
@@ -144,6 +145,7 @@ function pidCrypt(){
   }
   this.appendInfo = function(str){
     this.infos += str;
+    return '';
   }
   this.getInfos = function()
   {
@@ -155,6 +157,7 @@ function pidCrypt(){
   this.appendDebug = function(str)
   {
     this.debugMsg += str;
+    return '';
   }
   this.isDebug = function(){
     return this.debug;
