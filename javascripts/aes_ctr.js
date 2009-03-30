@@ -129,7 +129,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     var password = p.key;
     // use AES itself to encrypt password to get cipher key (using plain
     // password as source for key expansion) - gives us well encrypted key
-    var nBytes = p.nBits/8;  // no bytes in key
+    var nBytes = Math.floor(p.nBits/8);  // no bytes in key
     var pwBytes = new Array(nBytes);
     for (var i=0; i<nBytes; i++)
       pwBytes[i] = isNaN(password.charCodeAt(i)) ? 0 : password.charCodeAt(i);
@@ -239,7 +239,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     pidcrypt.setParams({decryptIn:byteArray});
     if(!p.dataIn) pidcrypt.setParams({dataIn:byteArray});
     // use AES to encrypt password (mirroring encrypt routine)
-    var nBytes = p.nBits/8;  // no bytes in key
+    var nBytes = Math.floor(p.nBits/8);  // no bytes in key
     var pwBytes = new Array(nBytes);
     for (var i=0; i<nBytes; i++) {
       pwBytes[i] = isNaN(p.key.charCodeAt(i)) ? 0 : p.key.charCodeAt(i);
