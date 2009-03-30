@@ -217,6 +217,19 @@ String.prototype.stripLineFeeds = function(){
 
   return ba;
 }
+
+
+String.prototype.fragment = function(length,lf){
+  if(!length || length>=this.length) return this;
+  if(!lf) lf = '\n'
+  var tmp='';
+  for(var i=0;i<this.length;i+=length)
+    tmp += this.substr(i,length) + lf;
+  return tmp;
+}
+
+
+
 /*----------------------------------------------------------------------------*/
 /* End of intance methods of the String object                                */
 /*----------------------------------------------------------------------------*/
