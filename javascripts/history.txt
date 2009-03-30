@@ -21,6 +21,11 @@ pidCrypt
    debug=true!).
  - obsolete enviroment parameters input and output
 
+pidCrypt util
+ - String.fragment(length,linefeed): fractionalize a string to lines with length
+   and append linefeed at each line.
+ - String.stripLineFeeds: removes line feeds (0x10 und 0x13) from string
+
 
 AES-CBC
  - init(password, options), init without input (for decrypt you have to specify
