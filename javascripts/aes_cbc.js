@@ -203,7 +203,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     if(p.A0_PAD)
       byteArray[byteArray.length] = 10
     for(var c=0;c<charDiv;c++) byteArray[byteArray.length] = charDiv;
-    var nBytes = p.nBits/8;  // nr of bytes in key
+    var nBytes = Math.floor(p.nBits/8);  // nr of bytes in key
     var keyBytes = new Array(nBytes);
     var key = p.key.convertFromHex();
     for (var i=0; i<nBytes; i++) {
@@ -309,7 +309,7 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     var iv = p.iv.convertFromHex();
     if(byteArray.length%p.blockSize != 0)
       return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, the encrypted text has the wrong length for aes-cbc mode\n Length of ciphertext:'+byteArray.length+byteArray.length%p.blockSize);
-    var nBytes = p.nBits/8;  // nr of bytes in key
+    var nBytes = Math.floor(p.nBits/8);  // nr of bytes in key
     var keyBytes = new Array(nBytes);
     var key = p.key.convertFromHex();
     for (var i=0; i<nBytes; i++) {
@@ -345,7 +345,6 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
       if(endByte == firstPadByte && endByte == div)
         plaintext = plaintext.substr(0,plaintext.length-endByte);
     }
-
     pidcrypt.setParams({dataOut: plaintext,decryptOut: plaintext});
 
     //remove all parameters from enviroment for more security is debug off
@@ -368,8 +367,12 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     var pidcrypt = this.pidcrypt;
     var p = pidcrypt.getParams(); //get parameters for operation set by init
     if(ciphertext)
-      pidcrypt.setParams({dataIn:ciphertext, decryptIn: ciphertext.toByteArray()});
-    if(!p.decryptIn) pidcrypt.setParams({decryptIn: p.dataIn.toByteArray()});
+      pidcrypt.setParams({dataIn:ciphertext});
+    if(!p.decryptIn) {
+      var decryptIn = p.dataIn.decodeBase64();
+      if(decryptIn.indexOf('Salted__') == 0) decryptIn = decryptIn.substr(16);
+      pidcrypt.setParams({decryptIn: decryptIn.toByteArray()});
+    }
     var plaintext = this.decryptRaw();
     if(p.UTF8)
       plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
