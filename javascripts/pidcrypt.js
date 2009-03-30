@@ -171,8 +171,16 @@ function pidCrypt(){
     for(var d in defaults)
       if(typeof(options[d]) == 'undefined') options[d] = defaults[d];
     var mes = '';
-    for(var p in this.params)
-      mes += p + ': ' + this.params[p] + options.lf;
+    var tmp = '';
+    for(var p in this.params){
+      if(p == 'encryptOut'){
+        tmp = this.params[p].toString().toByteArray();
+        tmp = tmp.join().fragment(64, options.lf)
+      }
+      else
+        tmp = this.params[p].toString().fragment(64, options.lf)
+      mes += '<p><b>'+p+'</b>:<pre>' + tmp + '</pre></p>';
+    }  
     if(this.debug) mes += 'debug: ' + this.debug + options.lf;
     if(this.errors.length>0 && ((options.verbose & 1) == 1)) mes += 'Errors:' + options.lf + this.errors + options.lf;
     if(this.warnings.length>0 && ((options.verbose & 2) == 2)) mes += 'Warnings:' +options.lf + this.warnings + options.lf;
