@@ -219,6 +219,12 @@ String.prototype.stripLineFeeds = function(){
 }
 
 
+/**
+ * Fragmentize a string into lines adding a line feed (lf) every length
+ * characters
+ *
+ * @return string e.g. length=3 "abcdefghi" => "abc\ndef\nghi\n"
+ */
 String.prototype.fragment = function(length,lf){
   if(!length || length>=this.length) return this;
   if(!lf) lf = '\n'
@@ -228,6 +234,23 @@ String.prototype.fragment = function(length,lf){
   return tmp;
 }
 
+/**
+ * Formats a hex string in two lower case chars + : and lines of given length
+ * characters
+ *
+ * @return string e.g. "68656C6C6F20" => "68:65:6c:6c:6f:20:\n"
+*/
+String.prototype.formatHex = function(length){
+    if(!length) length = 45;
+    var str='';
+    var j = 0;
+    var hex = this.toLowerCase();
+    for(var i=0;i<hex.length;i+=2)
+      str += hex.substr(i,2) +':';
+    hex = str.fragment(length);
+
+  return hex;
+}
 
 
 /*----------------------------------------------------------------------------*/
