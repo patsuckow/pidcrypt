@@ -173,12 +173,18 @@ function pidCrypt(){
     var mes = '';
     var tmp = '';
     for(var p in this.params){
-      if(p == 'encryptOut'){
-        tmp = this.params[p].toString().toByteArray();
-        tmp = tmp.join().fragment(64, options.lf)
-      }
-      else
-        tmp = this.params[p].toString().fragment(64, options.lf)
+      switch(p){
+        case 'encryptOut':
+          tmp = this.params[p].toString().toByteArray();
+          tmp = tmp.join().fragment(64, options.lf)
+          break;
+        case 'key': 
+        case 'iv':
+          tmp = this.params[p].formatHex(48);
+          break;
+        default:
+          tmp = this.params[p].toString().fragment(64, options.lf);
+      }  
       mes += '<p><b>'+p+'</b>:<pre>' + tmp + '</pre></p>';
     }  
     if(this.debug) mes += 'debug: ' + this.debug + options.lf;
