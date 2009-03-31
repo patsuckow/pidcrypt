@@ -1,10 +1,10 @@
 Release 002, 31.03.2008
 **************   Bug fixes   **************
-- init clears old output from previous operation
-- appendError, appendInfo and appendDebug are now returning an empty string
+- init now clears old output from previous operation
+- appendError, appendInfo and appendDebug now return an empty string
   to avoid runtime errors in the calling function
-- the convert functions for hex strings now use native js functions (parseInt,
-  toString(16)) making them compatible with IE and Opera
+- the convert functions for hex strings now use native JS functions (parseInt,
+  toString(16)) making pidCrypt compatible with IE and Opera
 
 **************      New      **************
 pidCrypt
@@ -16,18 +16,17 @@ pidCrypt
  - new enviroment parameter params.decryptIn: stores input data of decrypt
  - new enviroment parameter params.decryptOut: stores output data of decrypt
    function
- - new enviroment parameter params.clear. if set to false with options
-   the params are not cleared from memory (clear=true is overridden by
+ - new enviroment parameter params.clear. If set to false with options
+   the params are not cleared from memory (clear=true is overwritten by
    debug=true!).
- - obsolete enviroment parameters input and output
+ - removed obsolete enviroment parameters input and output
 
 pidCrypt util
- - String.fragment(length,linefeed): fractionalize a string to lines with length
-   and append linefeed at each line.
+ - String.fragment(length,linefeed): fractionalizes a string into lines with
+   length and appends linefeed at the end of each line.
  - String.stripLineFeeds: removes line feeds (0x10 und 0x13) from string
  - String.formatHex: Formats a hex string in two lower case chars + :
    and lines of given length characters
-
 
 AES-CBC
  - init(password, options), init without input (for decrypt you have to specify
@@ -49,20 +48,20 @@ AES-CTR
 
 **************   Changes     **************
 pidCrypt
- - getAllMessages(options), has a new options parameter. with options.verbose
+ - getAllMessages(options) has a new options parameter: With options.verbose
    you can set the verbose level of the messages with any combination of 4 bits.
    1 = Error,2 = Warnings, 4 = Info, 8 = Debug. e.g. 10 (1010) gives you
    warnings and debugs. options.clr_mes = true clears all previous messages.
- - setParams(pObj) now sets  all pObj parameters as params (eg. pObj.newParam
+ - setParams(pObj) now sets all pObj parameters as params (eg. pObj.newParam
    will create params.newParam with value pObj[newParam]
 
 AES-CBC
- - encrypt(text) and decrypt(cryptedtext) now understand an input param .
-   you can now call init() once and encrypt with same parameters.
+ - encrypt(text) and decrypt(cryptedtext) now understand the parameter input.
+   You can now call init() once and encrypt more than once with same parameters.
 
 AES-CTR
- - encrypt(input) and decrypt(input) now understand the param input.
-   you can now call init() once and encrypt with same parameters.
+ - encrypt(input) and decrypt(input) now understand the parameter input.
+   You can now call init() once and encrypt more than once with same parameters.
 
 SHA-1, SHA-256
  - SHA hashing routines without automatic UTF-8 encoding
