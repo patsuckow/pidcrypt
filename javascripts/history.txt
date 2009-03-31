@@ -4,7 +4,7 @@ Release 002, 31.03.2008
 - appendError, appendInfo and appendDebug are now returning an empty string
   to avoid runtime errors in the calling function
 - the convert functions for hex strings now use native js functions (parseInt,
-  toString(16)) making them compatible with IE
+  toString(16)) making them compatible with IE and Opera
 
 **************      New      **************
 pidCrypt
