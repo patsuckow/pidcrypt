@@ -36,7 +36,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     this.getAllMessages = function(lnbrk){
       return this.pidcrypt.getAllMessages(lnbrk);
     }
-    this.isError() = function(){
+    this.isError = function(){
       return this.pidcrypt.isError();
     }
   }
