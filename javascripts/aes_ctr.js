@@ -31,8 +31,16 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
   pidCrypt.AES.CTR = function () {
     this.pidcrypt = new pidCrypt();
     this.aes = new  pidCrypt.AES(this.pidcrypt);
+    //shortcuts to pidcrypt methods
     this.getOutput = function(){
       return this.pidcrypt.getOutput();
+    }
+    this.getAllMessages = function(lnbrk){
+      return this.pidcrypt.getAllMessages(lnbrk);
+    }
+    this.isError() = function(){
+      return this.pidcrypt.isError();
+    }
     }
   }
 /**
