@@ -93,7 +93,7 @@ if(typeof(pidCrypt) != 'undefined' &&
       pidcrypt.appendError('pidCrypt.AES.CBC.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
     var ciphertext = crypted.decodeBase64();
     if(ciphertext.indexOf('Salted__') != 0)
-      return pidcrypt.appendError('pidCrypt.AES.CBC.initFromCrypt: Sorry, unknown encryption method.\n');
+      pidcrypt.appendError('pidCrypt.AES.CBC.initFromCrypt: Sorry, unknown encryption method.\n');
     var salt = ciphertext.substr(8,8);//extract salt from crypted text
     options.salt = salt.convertToHex();//salt is always hex string
     this.init(password,options);//call standard init
