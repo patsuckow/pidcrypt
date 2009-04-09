@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+<SCRIPT src="../pidcrypt.js"></SCRIPT>
+<SCRIPT src="../pidcrypt_util.js"></SCRIPT>
+<SCRIPT src="../md5.js"></SCRIPT><!--needed for key and iv generation-->
+<SCRIPT src="../aes_core.js"></SCRIPT><!--needed block en-/decryption-->
+<SCRIPT src="../aes_cbc.js"></SCRIPT><!--needed for cbc mode-->
+<SCRIPT>
+
+function passed(testFunction){
+  var span = document.getElementById(testFunction);
+  span.innerHTML = 'passed'
+  span.style.color = '#00C000';
+}
+
+
+function compute(testFunction){
+  var password = 'password';
+  var plain = 'Text to encrypt ...';
+  var bits = 256;
+  var aes = new pidCrypt.AES.CBC();
+  var crypted ='';
+  var result ='';
+  var ok = false;
+  switch(testFunction) {
+    case 'init':
+      break;
+    case 'initEncrypt':
+      break;
+    case 'initDecyrpt':
+      break;
+    case 'initByValues':
+        var key = '2b5e643ef28362bdcfe9b024de40c9f4af563b7e11c9b4b6b74f53b70f2a93be';
+        var iv = '0104735ab0ee754177724e32eca0f406';
+        aes.initByValues(plain, key, iv);
+        crypted = aes.encrypt();
+        aes.initByValues(crypted, key, iv);
+        result = aes.decrypt();
+        ok = (plain == result);
+      break;
+    case 'encryptText':
+        crypted = aes.encryptText(plain,password,{nBits:bits});
+        result = aes.decryptText(crypted,password,{nBits:bits});
+        ok = (plain == result);
+      break;
+  }
+  if(ok)
+    passed(testFunction);
+  else
+    document.getElementById('report').innerHTML += '<P><h4>' + testFunction + '</H4>' + aes.pidcrypt.getAllMessages({lf:'<BR>'}) + '</P>';
+}
+
+function testAll(){
+  compute('initByValues');
+  compute('encryptText');
+
+}
+</SCRIPT>
+</HEAD>
+<BODY ONLOAD="testAll();">
+
+<H2><A HREF="?page=aes-cbc">AES-CBC</A> En-/Decryption test</H2>
+Please visit  <a href="http://www.pidder.com/pidcrypt">pidCrypt Home</a> for actual online demo and latest version!
+<UL>
+  <LI>initByValues: <span ID="initByValues" style="color:#FF0000">failed</span></LI>
+  <LI>encrypText/decryptText: <span ID="encryptText" style="color:#FF0000">failed</span></LI>
+</UL>
+<H3>Report</H3>
+<DIV id="report"></DIV>
+</BODY>
+</HTML>
