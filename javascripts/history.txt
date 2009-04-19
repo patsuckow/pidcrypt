@@ -1,4 +1,4 @@
-Release 002, 31.03.2008
+Release 002, 31.03.2009
 **************   Bug fixes   **************
 - init now clears old output from previous operation
 - appendError, appendInfo and appendDebug now return an empty string
