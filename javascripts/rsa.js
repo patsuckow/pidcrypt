@@ -175,9 +175,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     }
 
     // Return the PKCS#1 RSA encryption of "text" as an even-length hex string
-    pidCrypt.RSA.prototype.encrypt = function(text) {
-      //base64 coding for supporting 8bit chars
-      text = text.encodeBase64();
+    pidCrypt.RSA.prototype.encryptRaw = function(text) {
       var m = pkcs1pad2(text,(this.n.bitLength()+7)>>3);
       if(m == null) return null;
       var c = this.doPublic(m);
@@ -186,14 +184,23 @@ if(typeof(pidCrypt) != 'undefined' &&
       if((h.length & 1) == 0) return h; else return "0" + h;
     }
 
+    pidCrypt.RSA.prototype.encrypt = function(text) {
+      //base64 coding for supporting 8bit chars
+      text = text.encodeBase64();
+      return this.encryptRaw(text)
+    }
     // Return the PKCS#1 RSA decryption of "ctext".
     // "ctext" is an even-length hex string and the output is a plain string.
-    pidCrypt.RSA.prototype.decrypt = function(ctext) {
+    pidCrypt.RSA.prototype.decryptRaw = function(ctext) {
 //     alert('N='+this.n+'\nE='+this.e+'\nD='+this.d+'\nP='+this.p+'\nQ='+this.q+'\nDP='+this.dmp1+'\nDQ='+this.dmq1+'\nC='+this.coeff);
       var c = parseBigInt(ctext, 16);
       var m = this.doPrivate(c);
       if(m == null) return null;
-      var str = pkcs1unpad2(m, (this.n.bitLength()+7)>>3)
+      return pkcs1unpad2(m, (this.n.bitLength()+7)>>3)
+    }
+
+    pidCrypt.RSA.prototype.decrypt = function(ctext) {
+      var str = this.decryptRaw(ctext)
       //base64 coding for supporting 8bit chars
       return str.decodeBase64();
     }
