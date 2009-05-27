@@ -42,6 +42,7 @@ if(typeof(pidCrypt) != 'undefined' &&
   }
 /**
 * Initialize CBC for encryption from password.
+* Note: Only for encrypt operation!
 * @param  password: String
 * @param  options {
 *           nBits: aes bit size (128, 192 or 256)

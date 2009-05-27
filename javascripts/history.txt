@@ -1,3 +1,15 @@
+Release 003, ongoing
+**************   Bug fixes   **************
+- RSA decryption gives now an empty string instead of runtime error in case of
+  decryption failure
+**************      New      **************
+RSA
+ - new functions encryptRaw() and decryptRaw(). These functions do not encode
+   or decode the in-/output.
+ - getParameters(): returns the actual parameters (n,e,d,p,q,dmp1,dmq1,coeff)
+)
+
+
 Release 002, 31.03.2009
 **************   Bug fixes   **************
 - init now clears old output from previous operation

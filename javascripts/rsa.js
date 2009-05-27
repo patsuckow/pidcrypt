@@ -202,7 +202,8 @@ if(typeof(pidCrypt) != 'undefined' &&
     pidCrypt.RSA.prototype.decrypt = function(ctext) {
       var str = this.decryptRaw(ctext)
       //base64 coding for supporting 8bit chars
-      return str.decodeBase64();
+      str = (str) ? str.decodeBase64() : "";
+      return str;
     }
 
 /*
@@ -346,6 +347,24 @@ if(typeof(pidCrypt) != 'undefined' &&
     pidCrypt.RSA.prototype.setPrivateKeyFromASN = function(asntree) {
         this.setKeyFromASN('private',asntree);
     }
+/**
+ * gets the current paramters as object.
+ * @return params: object with RSA parameters
+*/
+    pidCrypt.RSA.prototype.getParameters = function() {
+      var params = {}
+      if(this.n != null) params.n = this.n;
+      params.e = this.e;
+      if(this.d != null) params.d = this.d;
+      if(this.p != null) params.p = this.p;
+      if(this.q != null) params.q = this.q;
+      if(this.dmp1 != null) params.dmp1 = this.dmp1;
+      if(this.dmq1 != null) params.dmq1 = this.dmq1;
+      if(this.coeff != null) params.c = this.coeff;
+
+      return params;
+    }
+
 
 //pidCrypt extensions end
 

@@ -41,7 +41,6 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     this.isError = function(){
       return this.pidcrypt.isError();
     }
-    }
   }
 /**
  * Initialize CTR for encryption from password.
