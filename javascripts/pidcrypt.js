@@ -60,6 +60,8 @@
  * - rsa.js:      RSA (Rivest, Shamir, Adleman Algorithm), Tom Wu
  * - oids.js:     oids (Object Identifiers found in ASN.1), Peter Gutmann
  * - asn1.js:     ASN1 (Abstract Syntax Notation One) parser, Lapo Luchini
+ * - sha256.js    SHA-256 hashing, Angel Marin 
+ * - sha2.js:     SHA-384 and SHA-512 hashing, Brian Turek
  *
  * IMPORTANT:
  * Please report any bugs at http://sourceforge.net/projects/pidcrypt/
