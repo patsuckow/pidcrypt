@@ -1,3 +1,4 @@
+/*!Copyright (c) 2003-2005  Tom Wu*/
 //  Author: Tom Wu
 //  tjw@cs.Stanford.EDU
 // prng4.js - uses Arcfour as a PRNG

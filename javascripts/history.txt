@@ -10,7 +10,7 @@ RSA
  - getParameters(): returns the actual parameters as object 
    (n,e,d,p,q,dmp1,dmq1,c)
 SHA
- - new SHA-384 and SHA-512 Hash algorythm
+ - new SHA-384 and SHA-512 Hash algorithm
 
 Test
  - test: finally a simple html test page for each modul. for now

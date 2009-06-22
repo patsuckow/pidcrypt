@@ -1,3 +1,4 @@
+/*!Copyright (c) 2009 pidder <www.pidder.com>*/
 /**
 *
 *  SHA256 (Secure Hash Algorithm) for use in pidCrypt Library
@@ -7,11 +8,12 @@
 *  Download: 09.06.2009 from http://anmar.eu.org/projects/jssha2/
 * 
 **/
+/*!Copyright Angel Marin 2003-2004 - http://anmar.eu.org/ */
 /* A JavaScript implementation of the Secure Hash Algorithm, SHA-256
- * Version 0.3 Copyright Angel Marin 2003-2004 - http://anmar.eu.org/
+ * Version 0.3 
  * Distributed under the BSD License
- * Some bits taken from Paul Johnston's SHA-1 implementation
  */
+/*!Some bits taken from Paul Johnston's SHA-1 implementation*/
 
 if(typeof(pidCrypt) != 'undefined') {
   pidCrypt.SHA256 = function(s) {

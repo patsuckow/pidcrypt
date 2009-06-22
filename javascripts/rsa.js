@@ -1,5 +1,5 @@
- /*----------------------------------------------------------------------------*/
- // Copyright (c) 2009 pidder <www.pidder.com>
+/*!Copyright (c) 2009 pidder <www.pidder.com>*/
+/*----------------------------------------------------------------------------*/
  // Permission to use, copy, modify, and/or distribute this software for any
  // purpose with or without fee is hereby granted, provided that the above
  // copyright notice and this permission notice appear in all copies.
@@ -24,9 +24,8 @@
 *  random number generator (rng.js) and a PRNG backend (prng4.js) (the random
 *  number scripts are only needed for key generation).
 /*----------------------------------------------------------------------------*/
- /*
- * Copyright (c) 2003-2005  Tom Wu
- * All Rights Reserved.
+/*!Copyright (c) 2003-2005  Tom Wu*/
+/* All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the

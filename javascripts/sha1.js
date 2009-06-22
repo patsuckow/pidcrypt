@@ -1,11 +1,13 @@
+/*!Copyright (c) 2009 pidder <www.pidder.com>*/
+/*!SHA1 (Secure Hash Algorithm)*/
 /**
 *
 *  SHA1 (Secure Hash Algorithm) for use in pidCrypt Library
 *  Depends on pidCrypt (pidcrypt.js, pidcrypt_util.js)
 *
-*  For original source see http://www.webtoolkit.info/
 *  Download: 02.03.2009 from http://www.webtoolkit.info/javascript-sha1.html
 **/
+/*!For original source see http://www.webtoolkit.info/*/
 
 if(typeof(pidCrypt) != 'undefined') {
   pidCrypt.SHA1 = function(msg) {

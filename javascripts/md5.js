@@ -1,11 +1,12 @@
+/*!MD5 (Message-Digest Algorithm)*/
 /**
 *
 *  MD5 (Message-Digest Algorithm) for use in pidCrypt Library
 *  Depends on pidCrypt (pidcrypt.js, pidcrypt_util.js)
 *
-*  For original source see http://www.webtoolkit.info/
 *  Download: 15.02.2009 from http://www.webtoolkit.info/javascript-md5.html
 **/
+/*!For original source see http://www.webtoolkit.info/*/
 
 if(typeof(pidCrypt) != 'undefined') {
   pidCrypt.MD5 = function(string) {

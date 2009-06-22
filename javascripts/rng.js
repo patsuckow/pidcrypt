@@ -1,3 +1,4 @@
+/*!Copyright (c) 2003-2005  Tom Wu*/
 //  Author: Tom Wu
 //  tjw@cs.Stanford.EDU
 // Random number generator - requires a PRNG backend, e.g. prng4.js

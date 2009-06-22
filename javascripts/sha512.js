@@ -1,19 +1,19 @@
+/*!Copyright (c) 2009 pidder <www.pidder.com>*/
 /**
 *
 *  SHA512 (Secure Hash Algorithm) for use in pidCrypt Library
 *  Depends on pidCrypt (pidcrypt.js, pidcrypt_util.js)
 *
-*  For original source see http://anmar.eu.org/projects/jssha2/
-*  Download: 09.06.2009 from http://anmar.eu.org/projects/jssha2/
 *
 **/
+/*!Copyright Brian Turek 2008 http://jssha.sourceforge.net/*/
 /* A JavaScript implementation of the SHA family of hashes, as defined in FIPS PUB 180-2
- * Version 1.11 Copyright Brian Turek 2008
+ * Version 1.11
  * Distributed under the BSD License
  * See http://jssha.sourceforge.net/ for more information
  *
- * Several functions taken from Paul Johnson
  */
+/*!Several functions taken from Paul Johnson*/
 if(typeof(pidCrypt) != 'undefined')
 {
 
