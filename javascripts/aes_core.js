@@ -224,15 +224,6 @@ expanded key 'key'.
       state[i + 3] ^= h2 ^ this.xtime[s3 ^ s0];
     }
   }
-// xor the elements of two arrays together
-  pidCrypt.AES.prototype.xOr_Array = function( a1, a2 ){
-     var i;
-     var res = Array();
-     for( i=0; i<a1.length; i++ )
-        res[i] = a1[i] ^ a2[i];
-
-     return res;
-  }
   pidCrypt.AES.prototype.getCounterBlock = function(){
     // initialise counter block (NIST SP800-38A §B.2): millisecond time-stamp for nonce in 1st 8 bytes,
     // block counter in 2nd 8 bytes

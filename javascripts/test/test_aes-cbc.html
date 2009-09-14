@@ -2,9 +2,10 @@
 <HEAD>
 <SCRIPT src="../pidcrypt.js"></SCRIPT>
 <SCRIPT src="../pidcrypt_util.js"></SCRIPT>
-<SCRIPT src="../md5.js"></SCRIPT><!--needed for key and iv generation-->
-<SCRIPT src="../aes_core.js"></SCRIPT><!--needed block en-/decryption-->
-<SCRIPT src="../aes_cbc.js"></SCRIPT><!--needed for cbc mode-->
+<SCRIPT src="../md5.js"></SCRIPT><!--needed for key and iv generation -->
+<SCRIPT src="../cbc.js"></SCRIPT><!--needed for key and iv generation -->
+<SCRIPT src="../aes_core.js"></SCRIPT><!--needed block en-/decryption -->
+<SCRIPT src="../aes_cbc.js"></SCRIPT><!--needed for aes cbc encrypt/decrypt functions -->
 <SCRIPT>
 
 function passed(testFunction){
@@ -53,8 +54,41 @@ function compute(testFunction){
         result = aes.decrypt();
         ok = (plain == result);
       break;
+    case 'knownAnswer':
+        key = '8A05FC5E095AF4848A08D328D3688E3D';
+        iv = '8A05FC5E095AF4848A08D328D3688E3D';
+        plain = '204F17E2444381F6114FF53934C0BCD3';
+        var lastCrypted;
+        var CV0;
+        var out = '';
+        for(var i=0;i<2;i++)
+        {
+          out += 'I='+ i + '<BR>';
+          out += 'KEY=' + key + '<BR>';
+          out +=  'IV=' + iv + '<BR>';
+          out +=  'PT=' + plain + '<BR>';
+          for(var j=0;j<10000;j++)
+          {
+            aes.initByValues(null, key, iv , {decryptIn:plain.convertFromHex().toByteArray(), noPadding:true, nBits:128});
+            crypted = aes.encryptRaw();
+            if(j==0)
+              plain = iv;
+            else
+              plain = lastCrypted;
+            iv = crypted.convertToHex();
+            lastCrypted = crypted.convertToHex();
+          }
+          out +=  'CT=' + crypted.convertToHex() + '<BR><BR>';
+          key = aes.pidcrypt.xOr_Array(key.convertFromHex().toByteArray(), crypted.toByteArray());
+          key = aes.pidcrypt.byteArray2String(key);
+          key = key.convertToHex();
+          //CV0 = iv = crypted
+          //PT0 = lastCrypted
+        }
+        document.getElementById('report').innerHTML = out;
+      break;
     case 'createKeyAndIv':
-        result = aes.createKeyAndIv({password:password, salt: '12345678', bits: bits});
+        result = aes.cbc.createKeyAndIv({password:password, salt: '12345678', bits: bits});
         ok = (result.key == key && iv == result.iv);
       break;
     case 'encryptRaw':
@@ -93,7 +127,7 @@ function compute(testFunction){
 }
 
 function testAll(){
-  compute('init');
+/*  compute('init');
   compute('initEncrypt');
   compute('initDecrypt');
   compute('initByValues');
@@ -103,7 +137,8 @@ function testAll(){
   compute('encryptText');
   compute('decryptRaw');
   compute('decrypt');
-  compute('decryptText');
+  compute('decryptText');*/
+  compute('knownAnswer');
 
 }
 </SCRIPT>

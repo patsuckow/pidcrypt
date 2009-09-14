@@ -145,7 +145,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     key = key.concat(key.slice(0, nBytes-16));  // expand key to 16/24/32 bytes long
     var counterBlock = this.getCounterBlock(p.blockSize);
     // and convert it to a string to go on the front of the ciphertext
-    var ctrTxt = byteArray2String(counterBlock.slice(0,8));
+    var ctrTxt = pidcrypt.byteArray2String(counterBlock.slice(0,8));
     pidcrypt.setParams({salt:ctrTxt.convertToHex()});
     // generate key schedule - an expansion of the key into distinct Key Rounds
     // for each round

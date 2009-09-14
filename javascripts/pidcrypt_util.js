@@ -258,13 +258,3 @@ String.prototype.formatHex = function(length){
 /* End of intance methods of the String object                                */
 /*----------------------------------------------------------------------------*/
 
-function byteArray2String(b){
-//  var out ='';
-  var s = '';
-  for(var i=0;i<b.length;i++){
-     s += String.fromCharCode(b[i]);
-//     out += b[i]+':';
-  }
-//  alert(out);
-  return s;
-}

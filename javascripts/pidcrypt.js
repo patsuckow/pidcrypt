@@ -81,10 +81,31 @@ function pidCrypt(){
     return bytes
   }
 
+  this.byteArray2String = function(b){
+  //  var out ='';
+    var s = '';
+    for(var i=0;i<b.length;i++){
+       s += String.fromCharCode(b[i]);
+  //     out += b[i]+':';
+    }
+  //  alert(out);
+    return s;
+  }
+
+// xor the elements of two arrays together
+  this.xOr_Array = function( a1, a2 ){
+     var i;
+     var res = Array();
+     for( i=0; i<a1.length; i++ )
+        res[i] = a1[i] ^ a2[i];
+
+     return res;
+  }
+
   this.setDefaults = function(){
      this.params.nBits = 256;
   //salt should always be a Hex String e.g. AD0E76FF6535AD...
-     this.params.salt = byteArray2String(getRandomBytes(8)).convertToHex();
+     this.params.salt = this.byteArray2String(getRandomBytes(8)).convertToHex();
      this.params.blockSize = 16;
      this.params.UTF8 = true;
      this.params.A0_PAD = true;
@@ -202,4 +223,5 @@ function pidCrypt(){
     return getRandomBytes(len);
   }
   //TODO warnings
+
 }

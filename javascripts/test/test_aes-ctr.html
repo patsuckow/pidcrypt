@@ -50,6 +50,7 @@ function compute(testFunction){
         aes.init(password, {clear:false});
         crypted = aes.encryptRaw(plainRaw);
         result = aes.decryptRaw(crypted.toByteArray());
+//        alert(plain +'=='+ result);
         ok = (plain == result);
       break;
     case 'encrypt':
@@ -80,10 +81,10 @@ function testAll(){
   compute('init');
   compute('initEncrypt');
   compute('initDecrypt');
-//  compute('encryptRaw');
+  compute('encryptRaw');
   compute('encrypt');
   compute('encryptText');
-//  compute('decryptRaw');
+  compute('decryptRaw');
   compute('decrypt');
   compute('decryptText');
 
