@@ -4,13 +4,19 @@
 <SCRIPT src="../pidcrypt_util.js"></SCRIPT>
 <SCRIPT src="../md5.js"></SCRIPT><!--needed for key and iv generation -->
 <SCRIPT src="../cbc.js"></SCRIPT><!--needed for key and iv generation -->
-<SCRIPT src="../aes_core.js"></SCRIPT><!--needed block en-/decryption -->
+<SCRIPT src="../new_core.js"></SCRIPT><!--needed block en-/decryption -->
 <SCRIPT src="../aes_cbc.js"></SCRIPT><!--needed for aes cbc encrypt/decrypt functions -->
 <SCRIPT>
 
 function passed(testFunction){
   var span = document.getElementById(testFunction);
   span.innerHTML = 'passed'
+  span.style.color = '#00C000';
+}
+
+function speed(pObj){
+  var span = document.getElementById(pObj.func);
+  span.innerHTML = (pObj.bytes/1000) + ' kB in ' + pObj.time + ' s = ' + (pObj.bytes/1000)/pObj.time + ' kB/s';
   span.style.color = '#00C000';
 }
 
@@ -27,7 +33,14 @@ function compute(testFunction){
   var result ='';
   var options = {nBits:bits};
   var ok = false;
-  switch(testFunction) {
+  var blocks = {};
+  var rounds = 100;
+  var len = 1024;
+  var stopDate= null;
+  var startDate= null;
+  var start = 0;
+  var stop = 0;
+ switch(testFunction) {
     case 'init':
         aes.init(password, options);
         crypted = aes.encrypt(plain);
@@ -67,7 +80,7 @@ function compute(testFunction){
           out += 'KEY=' + key + '<BR>';
           out +=  'IV=' + iv + '<BR>';
           out +=  'PT=' + plain + '<BR>';
-          for(var j=0;j<10000;j++)
+          for(var j=0;j<1;j++)
           {
             aes.initByValues(null, key, iv , {decryptIn:plain.convertFromHex().toByteArray(), noPadding:true, nBits:128});
             crypted = aes.encryptRaw();
@@ -119,15 +132,41 @@ function compute(testFunction){
         result = aes.decryptText(crypted, password, options);
         ok = (plain == result);
       break;
+    case 'encryptSpeed':
+        for(var i=0;i<rounds;i++)
+           blocks[i] = aes.pidcrypt.byteArray2String(aes.pidcrypt.getRandomBytes(len));
+        startDate = new Date();
+        start = startDate.getSeconds();
+        for(var b in blocks)
+	       crypted = aes.encryptText(blocks[b], password, options);
+        stopDate = new Date();
+        stop = stopDate.getSeconds();
+        ok = false;
+        var speedParams = {func:testFunction,bytes:rounds*len,time:stop-start};
+      break;
+    case 'decryptSpeed':
+        crypted = aes.encryptText(aes.pidcrypt.byteArray2String(aes.pidcrypt.getRandomBytes(len)), password, options);
+        startDate = new Date();
+        start = startDate.getSeconds();
+        for(var i=0;i<rounds;i++)
+           plain = aes.decryptText(crypted, password, options);
+        stopDate = new Date();
+        stop = stopDate.getSeconds();
+        ok = false;
+        var speedParams = {func:testFunction,bytes:rounds*len,time:stop-start};
+      break;
   }
   if(ok)
     passed(testFunction);
   else
-    document.getElementById('report').innerHTML += '<P><h4>' + testFunction + '</H4>' + aes.pidcrypt.getAllMessages({lf:'<BR>'}) + '</P>';
+    if(speedParams)
+      speed(speedParams);
+    else
+      document.getElementById('report').innerHTML += '<P><h4>' + testFunction + '</H4>' + aes.pidcrypt.getAllMessages({lf:'<BR>'}) + '</P>';
 }
 
 function testAll(){
-/*  compute('init');
+  compute('init');
   compute('initEncrypt');
   compute('initDecrypt');
   compute('initByValues');
@@ -137,8 +176,10 @@ function testAll(){
   compute('encryptText');
   compute('decryptRaw');
   compute('decrypt');
-  compute('decryptText');*/
-  compute('knownAnswer');
+  compute('decryptText');
+  //compute('knownAnswer');
+  compute('encryptSpeed');
+  compute('decryptSpeed');
 
 }
 </SCRIPT>
@@ -159,6 +200,8 @@ Please visit  <a href="http://www.pidder.com/pidcrypt">pidCrypt Home</a> for act
   <LI>decryptRaw: <span ID="decryptRaw" style="color:#FF0000">failed</span></LI>
   <LI>decrypt: <span ID="decrypt" style="color:#FF0000">failed</span></LI>
   <LI>decryptText: <span ID="decryptText" style="color:#FF0000">failed</span></LI>
+  <LI>encryptSpeed: <span ID="encryptSpeed" style="color:#FF0000">not computed</span></LI>
+  <LI>decryptSpeed: <span ID="decryptSpeed" style="color:#FF0000">not computed</span></LI>
 </UL>
 <H3>Report</H3>
 <DIV id="report"></DIV>
