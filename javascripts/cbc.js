@@ -81,7 +81,7 @@ if(typeof(pidCrypt) != 'undefined' &&
         retObj.iv = keymaterial[3];
         break;
        default:
-         pidcrypt.appendError('pidCrypt.AES.CBC.createKeyAndIv: Sorry, only 128, 192 and 256 bits are supported.\nBits('+typeof(pObj.bits)+') = '+pObj.bits);
+         pidcrypt.appendError('pidCrypt.CBC.createKeyAndIv: Sorry, only 128, 192 and 256 bits are supported.\nBits('+typeof(pObj.bits)+') = '+pObj.bits);
     }
     return retObj;
   }
