@@ -62,7 +62,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     pObj.iv = k_iv.iv;
     pObj.dataOut = '';
     pidcrypt.setParams(pObj)
-    this.aes.init();
+    this.aes.init(pObj.key.convertFromHex().toByteArray());
   }
 
 /**
@@ -148,18 +148,11 @@ if(typeof(pidCrypt) != 'undefined' &&
     if(!p.noPadding)
     {
       var charDiv = p.blockSize - ((byteArray.length+1) % p.blockSize);
+      if(charDiv == 0) charDiv = 16;
       if(p.A0_PAD)
         byteArray[byteArray.length] = 10
       for(var c=0;c<charDiv;c++) byteArray[byteArray.length] = charDiv;
     }
-    var nBytes = Math.floor(p.nBits/8);  // nr of bytes in key
-    var keyBytes = new Array(nBytes);
-    var key = p.key.convertFromHex();
-    for (var i=0; i<nBytes; i++) {
-      keyBytes[i] = isNaN(key.charCodeAt(i)) ? 0 : key.charCodeAt(i);
-    }
-    // generate key schedule
-    var keySchedule = aes.expandKey(keyBytes);
     var blockCount = Math.ceil(byteArray.length/p.blockSize);
     var ciphertxt = new Array(blockCount);  // ciphertext as array of strings
     var textBlock = [];
@@ -168,7 +161,7 @@ if(typeof(pidCrypt) != 'undefined' &&
       // XOR last block and next data block, then encrypt that
       textBlock = byteArray.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
       state = pidcrypt.xOr_Array(state, textBlock);
-      state = aes.encrypt(state.slice(), keySchedule);  // -- encrypt block --
+      aes.encrypt(state.slice(),state);  // -- encrypt block --
       ciphertxt[b] = pidcrypt.byteArray2String(state);
     }
     var ciphertext = ciphertxt.join('');
@@ -258,14 +251,6 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     var iv = p.iv.convertFromHex();
     if(byteArray.length%p.blockSize != 0)
       return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, the encrypted text has the wrong length for aes-cbc mode\n Length of ciphertext:'+byteArray.length+byteArray.length%p.blockSize);
-    var nBytes = Math.floor(p.nBits/8);  // nr of bytes in key
-    var keyBytes = new Array(nBytes);
-    var key = p.key.convertFromHex();
-    for (var i=0; i<nBytes; i++) {
-      keyBytes[i] = isNaN(key.charCodeAt(i)) ? 0 : key.charCodeAt(i);
-    }
-    // generate key schedule
-    var keySchedule = aes.expandKey(keyBytes);
     // separate byteArray into blocks
     var nBlocks = Math.ceil((byteArray.length) / p.blockSize);
     // plaintext will get generated block-by-block into array of block-length strings
@@ -275,7 +260,7 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     var dec_state = [];
     for (var b=0; b<nBlocks; b++) {
       ciphertextBlock = byteArray.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
-      dec_state = aes.decrypt(ciphertextBlock, keySchedule);  // decrypt ciphertext block
+      aes.decrypt(ciphertextBlock, dec_state);  // decrypt ciphertext block
       plaintxt[b] = pidcrypt.byteArray2String(pidcrypt.xOr_Array(state, dec_state));
       state = ciphertextBlock.slice(); //save old ciphertext for next round
     }
