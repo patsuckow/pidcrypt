@@ -47,9 +47,12 @@ function compute(testFunction){
     case 'encryptRaw':
     case 'decryptRaw':
         var plainRaw = pidCryptUtil.toByteArray(plain);
-        aes.init(password, {clear:false});
+        aes.init(password);
         crypted = aes.encryptRaw(plainRaw);
-        result = aes.decryptRaw(pidCryptUtil.toByteArray(crypted));
+        aes.initDecrypt(pidCryptUtil.encodeBase64(crypted),password);
+        cryptedRaw = pidCryptUtil.toByteArray(crypted);
+        cryptedRaw = cryptedRaw.slice(8,cryptedRaw.length);
+        result = aes.decryptRaw(cryptedRaw);
         ok = (plain == result);
       break;
     case 'encrypt':
@@ -80,10 +83,10 @@ function testAll(){
   compute('init');
   compute('initEncrypt');
   compute('initDecrypt');
-//  compute('encryptRaw');
+  compute('encryptRaw');
   compute('encrypt');
   compute('encryptText');
-//  compute('decryptRaw');
+  compute('decryptRaw');
   compute('decrypt');
   compute('decryptText');
 
