@@ -88,7 +88,9 @@ function pidCrypt(){
   this.setDefaults = function(){
      this.params.nBits = 256;
   //salt should always be a Hex String e.g. AD0E76FF6535AD...
-     this.params.salt = byteArray2String(getRandomBytes(8)).convertToHex();
+     this.params.salt = getRandomBytes(8);
+     this.params.salt = pidCryptUtil.byteArray2String(this.params.salt);
+     this.params.salt = pidCryptUtil.convertToHex(this.params.salt);
      this.params.blockSize = 16;
      this.params.UTF8 = true;
      this.params.A0_PAD = true;
@@ -181,15 +183,15 @@ function pidCrypt(){
     for(var p in this.params){
       switch(p){
         case 'encryptOut':
-          tmp = this.params[p].toString().toByteArray();
-          tmp = tmp.join().fragment(64, options.lf)
+          tmp = pidCryptUtil.toByteArray(this.params[p].toString());
+          tmp = pidCryptUtil.fragment(tmp.join(),64, options.lf)
           break;
         case 'key': 
         case 'iv':
-          tmp = this.params[p].formatHex(48);
+          tmp = pidCryptUtil.formatHex(this.params[p],48);
           break;
         default:
-          tmp = this.params[p].toString().fragment(64, options.lf);
+          tmp = pidCryptUtil.fragment(this.params[p].toString(),64, options.lf);
       }  
       mes += '<p><b>'+p+'</b>:<pre>' + tmp + '</pre></p>';
     }  
@@ -207,3 +209,4 @@ function pidCrypt(){
   }
   //TODO warnings
 }
+

@@ -74,7 +74,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
 */
   pidCrypt.AES.CTR.prototype.initEncrypt = function(dataIn, password, options) {
     this.init(password, options);
-    this.pidcrypt.setParams({dataIn:dataIn, encryptIn: dataIn.toByteArray()})//setting input for encryption
+    this.pidcrypt.setParams({dataIn:dataIn, encryptIn: pidCryptUtil.toByteArray(dataIn)})//setting input for encryption
  }
 /**
 * Init CTR for decryption from encrypted text (encrypted with pidCrypt.AES.CTR)
@@ -88,12 +88,12 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     var pObj = {};
     this.init(password, options);
     pObj.dataIn = crypted;
-    var cipherText = crypted.decodeBase64();
+    var cipherText = pidCryptUtil.decodeBase64(crypted);
     // recover nonce from 1st 8 bytes of ciphertext
     var salt = cipherText.substr(0,8);//nonce in ctr
-    pObj.salt = salt.convertToHex();
+    pObj.salt = pidCryptUtil.convertToHex(salt);
     cipherText = cipherText.substr(8)
-    pObj.decryptIn = cipherText.toByteArray();
+    pObj.decryptIn = pidCryptUtil.toByteArray(cipherText);
     this.pidcrypt.setParams(pObj);
   }
 
@@ -144,8 +144,8 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     key = key.concat(key.slice(0, nBytes-16));  // expand key to 16/24/32 bytes long
     var counterBlock = this.getCounterBlock(p.blockSize);
     // and convert it to a string to go on the front of the ciphertext
-    var ctrTxt = byteArray2String(counterBlock.slice(0,8));
-    pidcrypt.setParams({salt:ctrTxt.convertToHex()});
+    var ctrTxt = pidCryptUtil.byteArray2String(counterBlock.slice(0,8));
+    pidcrypt.setParams({salt:pidCryptUtil.convertToHex(ctrTxt)});
     // generate key schedule - an expansion of the key into distinct Key Rounds
     // for each round
     var keySchedule = aes.expandKey(key);
@@ -166,7 +166,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
       }
       ciphertxt[b] = cipherChar.join('');
     }
-//    alert(ciphertxt.join('').encodeBase64());
+//    alert(pidCryptUtil.encodeBase64(ciphertxt.join('')));
     // Array.join is more efficient than repeated string concatenation
     var ciphertext = ctrTxt + ciphertxt.join('');
     pidcrypt.setParams({dataOut:ciphertext, encryptOut:ciphertext});
@@ -194,12 +194,12 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     if(!plaintext)
       plaintext = p.dataIn;
     if(p.UTF8){
-      plaintext = plaintext.encodeUTF8();
-      pidcrypt.setParams({key:pidcrypt.getParam('key').encodeUTF8()});
+      plaintext = pidCryptUtil.encodeUTF8(plaintext);
+      pidcrypt.setParams({key:pidCryptUtil.encodeUTF8(pidcrypt.getParam('key'))});
     }
-    pidcrypt.setParams({dataIn:plaintext, encryptIn: plaintext.toByteArray()});
+    pidcrypt.setParams({dataIn:plaintext, encryptIn: pidCryptUtil.toByteArray(plaintext)});
     var ciphertext = this.encryptRaw();
-    ciphertext = ciphertext.encodeBase64();  // encode in base64
+    ciphertext = pidCryptUtil.encodeBase64(ciphertext);  // encode in base64
     pidcrypt.setParams({dataOut:ciphertext});
     //remove all parameters from enviroment for more security is debug off
     if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
@@ -254,7 +254,7 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     var key = aes.encrypt(pwBytes.slice(0,16), aes.expandKey(pwBytes));  // gives us 16-byte key
     key = key.concat(key.slice(0, nBytes-16));  // expand key to 16/24/32 bytes long
     var counterBlock = new Array(8);
-    var ctrTxt = p.salt.convertFromHex();
+    var ctrTxt = pidCryptUtil.convertFromHex(p.salt);
     for (i=0; i<8; i++) counterBlock[i] = ctrTxt.charCodeAt(i);
     // generate key schedule
     var keySchedule =  aes.expandKey(key);
@@ -302,12 +302,12 @@ if(typeof(pidCrypt) != 'undefined' && typeof(pidCrypt.AES) != 'undefined')
     var pidcrypt = this.pidcrypt;
     var p = pidcrypt.getParams(); //get parameters for operation set by init
     if(ciphertext)
-      pidcrypt.setParams({dataIn:ciphertext, decryptIn: ciphertext.toByteArray()});
+      pidcrypt.setParams({dataIn:ciphertext, decryptIn: pidCryptUtil.toByteArray(ciphertext)});
     if(p.UTF8){
-      pidcrypt.setParams({key:pidcrypt.getParam('key').encodeUTF8()});
+      pidcrypt.setParams({key:pidCryptUtil.encodeUTF8(pidcrypt.getParam('key'))});
     }
     var plaintext = this.decryptRaw();
-    plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
+    plaintext = pidCryptUtil.decodeUTF8(plaintext);  // decode from UTF8 back to Unicode multi-byte chars
 
     pidcrypt.setParams({dataOut:plaintext});
     //remove all parameters from enviroment for more security is debug off

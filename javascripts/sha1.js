@@ -54,7 +54,7 @@ if(typeof(pidCrypt) != 'undefined') {
     var A, B, C, D, E;
     var temp;
 
-    //msg = msg.encodeUTF8();
+    //msg = pidCryptUtil.encodeUTF8(msg);
 
     var msg_len = msg.length;
 

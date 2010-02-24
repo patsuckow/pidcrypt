@@ -74,7 +74,7 @@ if(typeof(pidCrypt) != 'undefined') {
       return str;
     }
     function hex_sha256(s){return binb2hex(core_sha256(str2binb(s),s.length * chrsz));}
-    //s = s.encodeUTF8();
+    //s = pidCryptUtil.encodeUTF8(s);
     return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
 
   }

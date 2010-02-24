@@ -46,10 +46,10 @@ function compute(testFunction){
       break;
     case 'encryptRaw':
     case 'decryptRaw':
-        var plainRaw = plain.toByteArray();
+        var plainRaw = pidCryptUtil.toByteArray(plain);
         aes.init(password, {clear:false});
         crypted = aes.encryptRaw(plainRaw);
-        result = aes.decryptRaw(crypted.toByteArray());
+        result = aes.decryptRaw(pidCryptUtil.toByteArray(crypted));
         ok = (plain == result);
       break;
     case 'encrypt':

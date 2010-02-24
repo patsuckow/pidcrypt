@@ -33,14 +33,14 @@
  *                   otherwise string is assumed to be 8-bit characters
  * @return coded     base64-encoded string
  */
-String.prototype.encodeBase64 = function(utf8encode) {  // http://tools.ietf.org/html/rfc4648
+pidCryptUtil = {};
+pidCryptUtil.encodeBase64 = function(str,utf8encode) {  // http://tools.ietf.org/html/rfc4648
+  if(!str) str = "";
   var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   utf8encode =  (typeof utf8encode == 'undefined') ? false : utf8encode;
   var o1, o2, o3, bits, h1, h2, h3, h4, e=[], pad = '', c, plain, coded;
-  var debug = this.toByteArray();
-//  alert(debug.slice(debug.length-10));
 
-  plain = utf8encode ? this.encodeUTF8() : this;
+  plain = utf8encode ? pidCryptUtil.encodeUTF8(str) : str;
 
   c = plain.length % 3;  // pad string to length of multiple of 3
   if (c > 0) { while (c++ < 3) { pad += '='; plain += '\0'; } }
@@ -76,14 +76,13 @@ String.prototype.encodeBase64 = function(utf8encode) {  // http://tools.ietf.org
  *                   back into Unicode after conversion from base64
  * @return           decoded string
  */
-String.prototype.decodeBase64 = function(utf8decode) {
+pidCryptUtil.decodeBase64 = function(str,utf8decode) {
+  if(!str) str = "";
   var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   utf8decode =  (typeof utf8decode == 'undefined') ? false : utf8decode;
   var o1, o2, o3, h1, h2, h3, h4, bits, d=[], plain, coded;
 
-  //alert(this.slice(this.length-10).toByteArray());
-
-  coded = utf8decode ? this.decodeUTF8() : this;
+  coded = utf8decode ? pidCryptUtil.decodeUTF8(str) : str;
 
   for (var c=0; c<coded.length; c+=4) {  // unpack four hexets into three octets
     h1 = b64.indexOf(coded.charAt(c));
@@ -104,9 +103,8 @@ String.prototype.decodeBase64 = function(utf8decode) {
   }
   plain = d.join('');  // join() is far faster than repeated string concatenation
 
-  plain = utf8decode ? plain.decodeUTF8() : plain
-//  plain = plain.substr(0,plain.length-4)
-  var debug = plain.toByteArray();
+  plain = utf8decode ? pidCryptUtil.decodeUTF8(plain) : plain
+
   return plain;
 }
 
@@ -118,10 +116,11 @@ String.prototype.decodeBase64 = function(utf8decode) {
  *
  * @return encoded string
  */
-String.prototype.encodeUTF8 = function() {
+pidCryptUtil.encodeUTF8 = function(str) {
+  if(!str) str = "";
   // use regular expressions & String.replace callback function for better efficiency
   // than procedural approaches
-  var str = this.replace(
+  str = str.replace(
       /[\u0080-\u07ff]/g,  // U+0080 - U+07FF => 2 bytes 110yyyyy, 10zzzzzz
       function(c) {
         var cc = c.charCodeAt(0);
@@ -141,8 +140,9 @@ String.prototype.encodeUTF8 = function() {
  *
  * @return decoded string
  */
-String.prototype.decodeUTF8 = function() {
-  var str = this.replace(
+pidCryptUtil.decodeUTF8 = function(str) {
+  if(!str) str = "";
+  str = str.replace(
       /[\u00c0-\u00df][\u0080-\u00bf]/g,                 // 2-byte chars
       function(c) {  // (note parentheses for precence)
         var cc = (c.charCodeAt(0)&0x1f)<<6 | c.charCodeAt(1)&0x3f;
@@ -165,11 +165,12 @@ String.prototype.decodeUTF8 = function() {
  *
  * @return hex string e.g. "hello world" => "68656c6c6f20776f726c64"
  */
-String.prototype.convertToHex = function() {
+pidCryptUtil.convertToHex = function(str) {
+  if(!str) str = "";
   var hs ='';
   var hv ='';
-  for (var i=0; i<this.length; i++) {
-    hv = this.charCodeAt(i).toString(16);
+  for (var i=0; i<str.length; i++) {
+    hv = str.charCodeAt(i).toString(16);
     hs += (hv.length == 1) ? '0'+hv : hv;
   }
   return hs;
@@ -181,10 +182,11 @@ String.prototype.convertToHex = function() {
  *
  * @return hex string e.g. "68656c6c6f20776f726c64" => "hello world"
  */
-String.prototype.convertFromHex = function(){
+pidCryptUtil.convertFromHex = function(str){
+  if(!str) str = "";
   var s = "";
-  for(var i= 0;i<this.length;i+=2){
-    s += String.fromCharCode(parseInt(this.substring(i,i+2),16));
+  for(var i= 0;i<str.length;i+=2){
+    s += String.fromCharCode(parseInt(str.substring(i,i+2),16));
   }
   return s
 }
@@ -195,11 +197,12 @@ String.prototype.convertFromHex = function(){
  *
  * @return string
  */
-String.prototype.stripLineFeeds = function(){
+pidCryptUtil.stripLineFeeds = function(str){
+  if(!str) str = "";
 //  var re = RegExp(String.fromCharCode(13),'g');//\r
 //  var re = RegExp(String.fromCharCode(10),'g');//\n
   var s = '';
-  s = this.replace(/\n/g,'');
+  s = str.replace(/\n/g,'');
   s = s.replace(/\r/g,'');
   return s;
 }
@@ -210,10 +213,11 @@ String.prototype.stripLineFeeds = function(){
  *
  * @return hex string e.g. "68656c6c6f20776f726c64" => "hello world"
  */
- String.prototype.toByteArray = function(){
+ pidCryptUtil.toByteArray = function(str){
+  if(!str) str = "";
   var ba = [];
-  for(var i=0;i<this.length;i++)
-     ba[i] = this.charCodeAt(i);
+  for(var i=0;i<str.length;i++)
+     ba[i] = str.charCodeAt(i);
 
   return ba;
 }
@@ -225,12 +229,13 @@ String.prototype.stripLineFeeds = function(){
  *
  * @return string e.g. length=3 "abcdefghi" => "abc\ndef\nghi\n"
  */
-String.prototype.fragment = function(length,lf){
-  if(!length || length>=this.length) return this;
+pidCryptUtil.fragment = function(str,length,lf){
+  if(!str) str = "";
+  if(!length || length>=str.length) return str;
   if(!lf) lf = '\n'
   var tmp='';
-  for(var i=0;i<this.length;i+=length)
-    tmp += this.substr(i,length) + lf;
+  for(var i=0;i<str.length;i+=length)
+    tmp += str.substr(i,length) + lf;
   return tmp;
 }
 
@@ -240,14 +245,15 @@ String.prototype.fragment = function(length,lf){
  *
  * @return string e.g. "68656C6C6F20" => "68:65:6c:6c:6f:20:\n"
 */
-String.prototype.formatHex = function(length){
+pidCryptUtil.formatHex = function(str,length){
+  if(!str) str = "";
     if(!length) length = 45;
-    var str='';
+    var str_new='';
     var j = 0;
-    var hex = this.toLowerCase();
+    var hex = str.toLowerCase();
     for(var i=0;i<hex.length;i+=2)
-      str += hex.substr(i,2) +':';
-    hex = str.fragment(length);
+      str_new += hex.substr(i,2) +':';
+    hex = this.fragment(str_new,length);
 
   return hex;
 }
@@ -257,7 +263,7 @@ String.prototype.formatHex = function(length){
 /* End of intance methods of the String object                                */
 /*----------------------------------------------------------------------------*/
 
-function byteArray2String(b){
+pidCryptUtil.byteArray2String = function(b){
 //  var out ='';
   var s = '';
   for(var i=0;i<b.length;i++){

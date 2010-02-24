@@ -186,7 +186,7 @@ if(typeof(pidCrypt) != 'undefined' &&
 
     pidCrypt.RSA.prototype.encrypt = function(text) {
       //base64 coding for supporting 8bit chars
-      text = text.encodeBase64();
+      text = pidCryptUtil.encodeBase64(text);
       return this.encryptRaw(text)
     }
     // Return the PKCS#1 RSA decryption of "ctext".
@@ -202,7 +202,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     pidCrypt.RSA.prototype.decrypt = function(ctext) {
       var str = this.decryptRaw(ctext)
       //base64 coding for supporting 8bit chars
-      str = (str) ? str.decodeBase64() : "";
+      str = (str) ? pidCryptUtil.decodeBase64(str) : "";
       return str;
     }
 

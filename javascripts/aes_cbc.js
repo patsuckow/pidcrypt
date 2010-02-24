@@ -73,7 +73,7 @@ if(typeof(pidCrypt) != 'undefined' &&
 */
   pidCrypt.AES.CBC.prototype.initEncrypt = function(dataIn, password, options) {
     this.init(password,options);//call standard init
-    this.pidcrypt.setParams({dataIn:dataIn, encryptIn: dataIn.toByteArray()})//setting input for encryption
+    this.pidcrypt.setParams({dataIn:dataIn, encryptIn: pidCryptUtil.toByteArray(dataIn)})//setting input for encryption
   }
 /**
 * Initialize CBC for decryption from encrypted text (compatible with openssl).
@@ -92,14 +92,14 @@ if(typeof(pidCrypt) != 'undefined' &&
     pidcrypt.setParams({dataIn:crypted})
     if(!password)
       pidcrypt.appendError('pidCrypt.AES.CBC.initFromEncryption: Sorry, can not crypt or decrypt without password.\n');
-    var ciphertext = crypted.decodeBase64();
+    var ciphertext = pidCryptUtil.decodeBase64(crypted);
     if(ciphertext.indexOf('Salted__') != 0)
       pidcrypt.appendError('pidCrypt.AES.CBC.initFromCrypt: Sorry, unknown encryption method.\n');
     var salt = ciphertext.substr(8,8);//extract salt from crypted text
-    options.salt = salt.convertToHex();//salt is always hex string
+    options.salt = pidCryptUtil.convertToHex(salt);//salt is always hex string
     this.init(password,options);//call standard init
     ciphertext = ciphertext.substr(16);
-    pidcrypt.setParams({decryptIn:ciphertext.toByteArray()})
+    pidcrypt.setParams({decryptIn:pidCryptUtil.toByteArray(ciphertext)})
   }
 /**
 * Init CBC En-/Decryption from given parameters.
@@ -144,10 +144,10 @@ if(typeof(pidCrypt) != 'undefined' &&
     if(!pObj) pObj = {};
     if(!pObj.salt) {
       pObj.salt = pidcrypt.getRandomBytes(8);
-      pObj.salt = byteArray2String(pObj.salt).convertToHex();
+      pObj.salt = pidCryptUtil.convertToHex(pidCryptUtil.byteArray2String(pObj.salt));
       pidcrypt.setParams({salt: pObj.salt});
     }
-    var data00 = pObj.password + pObj.salt.convertFromHex();
+    var data00 = pObj.password + pidCryptUtil.convertFromHex(pObj.salt);
     var hashtarget = '';
     var result = '';
     var keymaterial = [];
@@ -157,7 +157,7 @@ if(typeof(pidCrypt) != 'undefined' &&
       if(j == 0)
         result = data00;   	//initialize
       else {
-        hashtarget = result.convertFromHex();
+        hashtarget = pidCryptUtil.convertFromHex(result);
         hashtarget += data00;
         result = hashtarget;
       }
@@ -202,7 +202,7 @@ if(typeof(pidCrypt) != 'undefined' &&
       byteArray = p.encryptIn;
     pidcrypt.setParams({encryptIn: byteArray});
     if(!p.dataIn) pidcrypt.setParams({dataIn:byteArray});
-    var iv = p.iv.convertFromHex();
+    var iv = pidCryptUtil.convertFromHex(p.iv);
     //PKCS5 paddding
     var charDiv = p.blockSize - ((byteArray.length+1) % p.blockSize);
     if(p.A0_PAD)
@@ -210,7 +210,7 @@ if(typeof(pidCrypt) != 'undefined' &&
     for(var c=0;c<charDiv;c++) byteArray[byteArray.length] = charDiv;
     var nBytes = Math.floor(p.nBits/8);  // nr of bytes in key
     var keyBytes = new Array(nBytes);
-    var key = p.key.convertFromHex();
+    var key = pidCryptUtil.convertFromHex(p.key);
     for (var i=0; i<nBytes; i++) {
       keyBytes[i] = isNaN(key.charCodeAt(i)) ? 0 : key.charCodeAt(i);
     }
@@ -219,13 +219,13 @@ if(typeof(pidCrypt) != 'undefined' &&
     var blockCount = Math.ceil(byteArray.length/p.blockSize);
     var ciphertxt = new Array(blockCount);  // ciphertext as array of strings
     var textBlock = [];
-    var state = iv.toByteArray();
+    var state = pidCryptUtil.toByteArray(iv);
     for (var b=0; b<blockCount; b++) {
       // XOR last block and next data block, then encrypt that
       textBlock = byteArray.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
       state = aes.xOr_Array(state, textBlock);
       state = aes.encrypt(state.slice(), keySchedule);  // -- encrypt block --
-      ciphertxt[b] = byteArray2String(state);
+      ciphertxt[b] = pidCryptUtil.byteArray2String(state);
     }
     var ciphertext = ciphertxt.join('');
     pidcrypt.setParams({dataOut:ciphertext, encryptOut:ciphertext});
@@ -255,12 +255,12 @@ if(typeof(pidCrypt) != 'undefined' &&
     if(!plaintext)
       plaintext = p.dataIn;
     if(p.UTF8)
-      plaintext = plaintext.encodeUTF8();
-    pidcrypt.setParams({dataIn:plaintext, encryptIn: plaintext.toByteArray()});
+      plaintext = pidCryptUtil.encodeUTF8(plaintext);
+    pidcrypt.setParams({dataIn:plaintext, encryptIn: pidCryptUtil.toByteArray(plaintext)});
     var ciphertext = this.encryptRaw()
-    salt = 'Salted__' + p.salt.convertFromHex();
+    salt = 'Salted__' + pidCryptUtil.convertFromHex(p.salt);
     ciphertext = salt  + ciphertext;
-    ciphertext = ciphertext.encodeBase64();  // encode in base64
+    ciphertext = pidCryptUtil.encodeBase64(ciphertext);  // encode in base64
     pidcrypt.setParams({dataOut:ciphertext});
     //remove all parameters from enviroment for more security is debug off
     if(!pidcrypt.isDebug() && pidcrypt.clear) pidcrypt.clearParams();
@@ -311,12 +311,12 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     if(!p.dataIn) pidcrypt.setParams({dataIn:byteArray});
     if((p.iv.length/2)<p.blockSize)
       return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, can not decrypt without complete set of parameters.\n Length of key,iv:'+p.key.length+','+p.iv.length);
-    var iv = p.iv.convertFromHex();
+    var iv = pidCryptUtil.convertFromHex(p.iv);
     if(byteArray.length%p.blockSize != 0)
       return pidcrypt.appendError('pidCrypt.AES.CBC.decrypt: Sorry, the encrypted text has the wrong length for aes-cbc mode\n Length of ciphertext:'+byteArray.length+byteArray.length%p.blockSize);
     var nBytes = Math.floor(p.nBits/8);  // nr of bytes in key
     var keyBytes = new Array(nBytes);
-    var key = p.key.convertFromHex();
+    var key = pidCryptUtil.convertFromHex(p.key);
     for (var i=0; i<nBytes; i++) {
       keyBytes[i] = isNaN(key.charCodeAt(i)) ? 0 : key.charCodeAt(i);
     }
@@ -326,19 +326,19 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     var nBlocks = Math.ceil((byteArray.length) / p.blockSize);
     // plaintext will get generated block-by-block into array of block-length strings
     var plaintxt = new Array(nBlocks.length);
-    var state = iv.toByteArray();
+    var state = pidCryptUtil.toByteArray(iv);
     var ciphertextBlock = [];
     var dec_state = [];
     for (var b=0; b<nBlocks; b++) {
       ciphertextBlock = byteArray.slice(b*p.blockSize, b*p.blockSize+p.blockSize);
       dec_state = aes.decrypt(ciphertextBlock, keySchedule);  // decrypt ciphertext block
-      plaintxt[b] = byteArray2String(aes.xOr_Array(state, dec_state));
+      plaintxt[b] = pidCryptUtil.byteArray2String(aes.xOr_Array(state, dec_state));
       state = ciphertextBlock.slice(); //save old ciphertext for next round
     }
     
     // join array of blocks into single plaintext string and return it
     var plaintext = plaintxt.join('');
-    if(pidcrypt.isDebug()) pidcrypt.appendDebug('Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
+    if(pidcrypt.isDebug()) pidcrypt.appendDebug('Padding after decryption:'+ pidCryptUtil.convertToHex(plaintext) + ':' + plaintext.length + '\n');
     var endByte = plaintext.charCodeAt(plaintext.length-1);
     //remove oppenssl A0 padding eg. 0A05050505
     if(p.A0_PAD){
@@ -374,14 +374,14 @@ pidCrypt.AES.CBC.prototype.decryptRaw = function(byteArray) {
     if(ciphertext)
       pidcrypt.setParams({dataIn:ciphertext});
     if(!p.decryptIn) {
-      var decryptIn = p.dataIn.decodeBase64();
+      var decryptIn = pidCryptUtil.decodeBase64(p.dataIn);
       if(decryptIn.indexOf('Salted__') == 0) decryptIn = decryptIn.substr(16);
-      pidcrypt.setParams({decryptIn: decryptIn.toByteArray()});
+      pidcrypt.setParams({decryptIn: pidCryptUtil.toByteArray(decryptIn)});
     }
     var plaintext = this.decryptRaw();
     if(p.UTF8)
-      plaintext = plaintext.decodeUTF8();  // decode from UTF8 back to Unicode multi-byte chars
-    if(pidcrypt.isDebug()) pidcrypt.appendDebug('Removed Padding after decryption:'+ plaintext.convertToHex() + ':' + plaintext.length + '\n');
+      plaintext = pidCryptUtil.decodeUTF8(plaintext);  // decode from UTF8 back to Unicode multi-byte chars
+    if(pidcrypt.isDebug()) pidcrypt.appendDebug('Removed Padding after decryption:'+ pidCryptUtil.convertToHex(plaintext) + ':' + plaintext.length + '\n');
     pidcrypt.setParams({dataOut:plaintext});
 
     //remove all parameters from enviroment for more security is debug off
