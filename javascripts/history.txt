@@ -17,6 +17,8 @@ Release 005,
 **************      New      **************
 String
   - Extending the javascript string class is now optional (string_extend.js)
+Test
+  - test_hashes.html
 
 
 Release 004, 02.11.2009
