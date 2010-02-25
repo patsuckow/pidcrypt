@@ -1,5 +1,5 @@
 #!/bin/sh
-java -jar ~/java/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o aes_cbc.js ../aes_cbc.js
+java -jar ~/java/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o aes_cbc_c.js ../aes_cbc.js
 java -jar ~/java/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o aes_core_c.js ../aes_core.js
 java -jar ~/java/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o aes_ctr_c.js ../aes_ctr.js
 java -jar ~/java/yuicompressor-2.4.2/build/yuicompressor-2.4.2.jar -o asn1_c.js ../asn1.js
