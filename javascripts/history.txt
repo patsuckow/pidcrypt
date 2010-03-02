@@ -1,4 +1,4 @@
-Release 005,
+Release 005, 28.02.2010
 **************   Changes   **************
 - Removed the extending of javascript core classes removed of security issues in some enviroments 
   (e.g. Firefox AddOns)
