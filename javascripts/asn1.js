@@ -172,15 +172,22 @@ if(typeof(pidCrypt) != 'undefined')
   //
   //gets the ASN data as tree of hex strings
   //@returns node: as javascript object tree with hex strings as values
-  //e.g. RSA Public Key gives
+  //e.g. RSA Private Key gives
   // {
-  //   SEQUENCE:
-  //              {
-  //                  INTEGER: modulus,
-  //                  INTEGER: public exponent
-  //              }
-  //}
-  pidCrypt.ASN1.prototype.toHexTree = function() {
+  //   type: SEQUENCE,
+  //   sub: [
+  //          {type: 'INTEGER', value: version},
+  //          {type: 'INTEGER', value: modulus},
+  //          {type: 'INTEGER', value: public exponent},
+  //          {type: 'INTEGER', value: private exponent},
+  //          {type: 'INTEGER', value: prime1},
+  //          {type: 'INTEGER', value: prime2},
+  //          {type: 'INTEGER', value: exponent1},
+  //          {type: 'INTEGER', value: exponent2},
+  //        ]
+  // }
+
+pidCrypt.ASN1.prototype.toHexTree = function() {
     var node = {};
     node.type = this.typeName();
     if(node.type != 'SEQUENCE')
@@ -481,7 +488,7 @@ if(typeof(pidCrypt) != 'undefined')
     var test = [
       { value: [0x27],                   expected: 0x27     },
       { value: [0x81, 0xC9],             expected: 0xC9     },
-      { value: [0x83, 0xFE, 0xDC, 0xBA], expected: 0xFEDCBA },
+      { value: [0x83, 0xFE, 0xDC, 0xBA], expected: 0xFEDCBA }
     ];
     for (var i = 0, max = test.length; i < max; ++i) {
       var pos = 0;
