@@ -125,12 +125,12 @@ if(typeof(pidCrypt) != 'undefined' &&
   }
 /**
 * Creates key of length nBits and an iv form password+salt
-* compatible to openssl.
-* See thread http://thedotnet.com/nntp/300307/showpost.aspx
+* compatible to openssl. See also:
+* http://www.jensign.com/JavaScience/dotnet/DeriveKeyM/
 *
 * @param  pObj {
 *    password: password as String
-*    [salt]: salt as String, default 8 byte random salt
+*    [salt]: salt as HEX String
 *    [bits]: no of bits, default pidCrypt.params.nBits = 256
 * }
 *
