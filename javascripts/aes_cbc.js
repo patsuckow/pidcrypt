@@ -206,7 +206,9 @@ if(typeof(pidCrypt) != 'undefined' &&
     //PKCS5 paddding
     var charDiv = p.blockSize - ((byteArray.length+1) % p.blockSize);
     if(p.A0_PAD)
-      byteArray[byteArray.length] = 10
+      byteArray[byteArray.length] = 10;
+    else
+      charDiv++;
     for(var c=0;c<charDiv;c++) byteArray[byteArray.length] = charDiv;
     var nBytes = Math.floor(p.nBits/8);  // nr of bytes in key
     var keyBytes = new Array(nBytes);
